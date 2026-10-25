@@ -17,6 +17,7 @@ if(g==2)return R('warn','Sandy Bridge: sem AVX2, limite Big Sur.',3);
 if(g==3)return R('warn','Ivy Bridge: sem AVX2, limite Monterey.',4);
 if(g<=10)return R('ok','Geração '+g+': suportada.');
 if(g==11)return R('warn','Rocket Lake: iGPU sem suporte, exige GPU dedicada AMD.');
+if(g==12&&/^12[1-6]\d0$/.test(d)&&!/K/i.test(m[2]))return R('warn','Alder Lake sem E-cores: funciona com patches de CPU e GPU dedicada AMD.');
 if(g<=14)return R('warn','Geração '+g+': experimental; desative os E-cores e use GPU dedicada AMD.');
 return R('bad','Geração não suportada.')}
 if(/Pentium|Celeron/i.test(n))return R('warn','Verifique o modelo e a geração manualmente.');

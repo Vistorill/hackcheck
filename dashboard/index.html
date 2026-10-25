@@ -68,7 +68,7 @@ $o|ConvertTo-Json -Compress|Set-Clipboard</pre>
 <button class="btn g" id="cp">Copiar script</button></div>
 <div class="card"><textarea id="inp" placeholder="Cole aqui o JSON gerado pelo scanner"></textarea>
 <button class="btn" id="go">Analisar</button><button class="btn g" id="s1">Exemplo aprovado</button><button class="btn g" id="s2">Exemplo reprovado</button>
-<p id="err" class="mu"></p></div>
+<p id="err" style="color:var(--ba);font-weight:600"></p></div>
 </section>
 
 <section id="hw"><h2>Hardware detectado</h2><div class="card tw" id="hwt"></div></section>
@@ -160,8 +160,14 @@ try{location.hash=t}catch(e){}window.scrollTo(0,0)}
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){show(b.dataset.t)}});
 document.getElementById('s1').onclick=function(){document.getElementById('inp').value=JSON.stringify(SA);run(SA,true);show('painel')};
 document.getElementById('s2').onclick=function(){document.getElementById('inp').value=JSON.stringify(SB);run(SB,true);show('painel')};
+// Extrai o primeiro objeto JSON do texto colado, ignorando o prompt do PowerShell e cópias repetidas.
+function firstJson(t){var i=t.indexOf('{'),d=0,q=false,k;if(i<0)return null;
+for(k=i;k<t.length;k++){var c=t[k];
+if(q){if(c=='\\')k++;else if(c=='"')q=false}
+else if(c=='"')q=true;else if(c=='{')d++;else if(c=='}'&&--d==0)return t.slice(i,k+1)}
+return null}
 document.getElementById('go').onclick=function(){var e=document.getElementById('err');e.textContent='';
-try{var d=JSON.parse(document.getElementById('inp').value);if(!d||typeof d!='object')throw 0;run(d,false);show('painel')}catch(x){e.textContent='JSON inválido. Gere novamente com o script do scanner.'}};
+try{var d=JSON.parse(firstJson(document.getElementById('inp').value));if(!d||typeof d!='object')throw 0;run(d,false);show('painel')}catch(x){e.textContent='Não encontrei um JSON válido. Rode o script do scanner de novo e cole só o resultado (Ctrl+V).'}};
 document.getElementById('cp').onclick=function(){var t=document.getElementById('ps').textContent;
 try{navigator.clipboard.writeText(t).then(function(){document.getElementById('cp').textContent='Copiado!'})}catch(e){var r=document.createRange();r.selectNode(document.getElementById('ps'));getSelection().removeAllRanges();getSelection().addRange(r)}};
 run(SA,true);
