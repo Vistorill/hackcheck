@@ -134,7 +134,9 @@ $o|ConvertTo-Json -Compress|Set-Clipboard</pre>
 <li>De volta ao menu, digite <b>6</b> (Build OpenCore EFI) e aguarde o download dos drivers.</li>
 <li>Pressione <b>Enter</b> nas telas finais ("Before Using EFI" e "Result"). Pode fechar a janela depois.</li>
 </ol>
-<p style="margin:8px 0 0">O HackCheck detecta a EFI sozinho quando ela ficar pronta. Não precisa procurar a pasta.</p></div>
+<p style="margin:8px 0 0">O HackCheck detecta a EFI sozinho quando ela ficar pronta. Não precisa procurar a pasta.</p>
+<p style="margin:8px 0 0">📘 <a href="#" id="efiguide">Guia completo com todas as telas e o que responder</a></p></div>
+<p class="mu" style="margin:8px 0 0">Primeira vez? Leia o <a href="#" class="efiguide">passo a passo para gerar a EFI</a> antes de começar.</p>
 </div>
 
 <div id="em-have" style="display:none;margin-top:12px">
@@ -354,6 +356,8 @@ if(s.phase=='done'&&s.efi&&W.efi!=s.efi){W.efi=s.efi;$('efip').textContent='EFI:
 if(s.phase=='downloading'||s.phase=='running')setTimeout(genPoll,1500)})}
 function wizBind(){
 $('efimode').onchange=function(e){efiMode(e.target.value)};
+document.querySelectorAll('#efiguide,.efiguide').forEach(function(a){a.onclick=function(e){e.preventDefault();
+api().open_url('https://github.com/Vistorill/hackcheck/blob/main/docs/como-gerar-efi.md')}});
 $('genb').onclick=function(){$('genver').textContent=V[W.ver];api().efi_generate().then(function(){setTimeout(genPoll,300)})};
 $('efib').onclick=function(){api().choose_efi().then(function(p){if(!p)return;W.efi=p;$('efip').textContent='EFI: '+p;efiCheck()})};
 $('dref').onclick=loadDisks;

@@ -12,6 +12,8 @@
 2. **Instale o HackCheck para Windows.** O programa lê o hardware automaticamente e gera o relatório completo. *(em desenvolvimento)*
 3. **Crie o pendrive.** Ele gera a EFI (OpCore Simplify), baixa o macOS da Apple (gibMacOS) e prepara o pendrive. *(em desenvolvimento)*
 
+📘 **Guia:** [Como gerar a EFI do seu PC](docs/como-gerar-efi.md) (passo a passo com o OpCore Simplify)
+
 ## Estrutura
 
 ```
