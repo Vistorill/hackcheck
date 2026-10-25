@@ -256,14 +256,21 @@ var mx=a.mx<0?T:a.mx,rec=Math.min(mx,SEQ),h='';
 if(W.ver==null||W.ver>mx)W.ver=rec;
 for(var i=mx;i>=Math.max(0,mx-4);i--)h+='<label class="'+(i==W.ver?'on':'')+'"><input type="radio" name="ver" value="'+i+'"'+(i==W.ver?' checked':'')+'><div><b>'+V[i]+'</b>'+(i==rec?' <span class="b ok">Recomendado</span>':'')+(i==T?' <span class="b warn">Último para PCs</span>':'')+'</div></label>';
 $('vlist').innerHTML=h;
-$('vlist').onchange=function(e){W.ver=+e.target.value;wizInit()};
+$('vlist').onchange=function(e){W.ver=+e.target.value;wizInit();efiCheck()};
 $('tahoe').innerHTML=W.ver==T&&a.tl.length?'<div class="note warn"><b>No Tahoe, com o seu hardware:</b><ul>'+a.tl.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ul></div>':'';
 wizCheck()}
 function efiShow(r){var h='';
 if(r.errors&&r.errors.length)h+='<div class="note bad"><b>EFI inválida:</b><ul>'+r.errors.map(function(e){return '<li>'+esc(e)+'</li>'}).join('')+'</ul></div>';
 if(r.warnings&&r.warnings.length)h+='<div class="note warn"><b>Atenção:</b><ul>'+r.warnings.map(function(e){return '<li>'+esc(e)+'</li>'}).join('')+'</ul></div>';
-if(r.ok)h+='<div class="note ok">EFI válida'+(r.kexts&&r.kexts.length?': '+r.kexts.length+' kexts ('+esc(r.kexts.slice(0,8).join(', '))+(r.kexts.length>8?'...':'')+')':'')+'</div>';
+if(r.ok)h+='<div class="note ok">EFI válida para o '+esc(V[W.ver])+(r.smbios?' · SMBIOS '+esc(r.smbios):'')+(r.kexts&&r.kexts.length?' · '+r.kexts.length+' kexts':'')+'</div>';
+if(r.drivers&&r.drivers.length){var DS={ok:['ok','Incluído'],missing:['bad','Faltando'],remove:['bad','Remover'],info:['info','Opcional']};
+h+='<h3>Drivers para o seu hardware</h3><div class="tw"><table><tr><th>Tipo</th><th>Driver</th><th>Status</th><th>Por quê</th></tr>'+r.drivers.map(function(d){var s=DS[d.status];
+return '<tr><td>'+esc(d.kind)+'</td><td><b>'+esc(d.name)+'</b></td><td><span class="b '+s[0]+'">'+s[1]+'</span></td><td class="mu">'+esc(d.reason)+'</td></tr>'}).join('')+'</table></div>'}
+if(r.kexts&&r.kexts.length)h+='<details><summary class="mu">Kexts na EFI ('+r.kexts.length+')</summary><p class="mu">'+esc(r.kexts.join(' · '))+'</p></details>';
 $('efir').innerHTML=h}
+// Revalida a EFI com a versão escolhida e o hardware escaneado.
+function efiCheck(){if(!W.efi)return;
+api().validate_efi(W.efi,null,W.ver,LAST&&!LAST.demo?LAST.d:{}).then(function(r){W.efiOk=!!r.ok;efiShow(r);wizCheck()})}
 function loadDisks(){$('disk').innerHTML='<option value="">Procurando pendrives...</option>';
 api().list_disks().then(function(r){W.disks=r.ok?r.disks:[];var h='';
 if(!r.ok)h='<option value="">Erro: '+esc(r.error)+'</option>';
@@ -291,11 +298,10 @@ if(s.status=='done'){$('w7').style.display='';$('w7').scrollIntoView({behavior:'
 wizCheck()}})}
 function wizStart(){var d=W.disk;
 $('w6').style.display='';$('w7').style.display='none';$('jmsg').innerHTML='';$('jagain').style.display='none';
-api().create_usb({version:W.ver,efi:W.efi,disk:{number:d.number,uid:d.uid,size:d.size},net:LAST.d.net||[]}).then(function(id){
+api().create_usb({version:W.ver,efi:W.efi,disk:{number:d.number,uid:d.uid,size:d.size},net:LAST.d.net||[],hw:LAST.d}).then(function(id){
 W.job=id;$('conf').value='';wizCheck();W.timer=setInterval(jobPoll,500);jobPoll();$('w6').scrollIntoView({behavior:'smooth'})})}
 function wizBind(){
-$('efib').onclick=function(){api().choose_efi().then(function(p){if(!p)return;W.efi=p;$('efip').textContent=p;
-api().validate_efi(p,LAST?LAST.d.net:[]).then(function(r){W.efiOk=!!r.ok;efiShow(r);wizCheck()})})};
+$('efib').onclick=function(){api().choose_efi().then(function(p){if(!p)return;W.efi=p;$('efip').textContent=p;efiCheck()})};
 $('dref').onclick=loadDisks;
 $('disk').onchange=function(){W.disk=this.value===''?null:W.disks[+this.value];diskInfo();wizCheck()};
 $('conf').oninput=wizCheck;

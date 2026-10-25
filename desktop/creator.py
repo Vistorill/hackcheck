@@ -103,7 +103,7 @@ class Job:
 
             cur = "efi"
             self.step(cur, "running")
-            v = efi.validate(p["efi"], p.get("net"))
+            v = efi.validate(p["efi"], p.get("net"), p["version"], p.get("hw"))
             if not v["ok"]:
                 raise RuntimeError("EFI inválida: " + "; ".join(v["errors"]))
             for w in v["warnings"]:
@@ -158,9 +158,11 @@ class Job:
                     raise RuntimeError("Arquivo incompleto no pendrive: " + str(out))
             dmg = next(o for s, o in files if o.suffix.lower() == ".dmg")
             cnk = next(o for s, o in files if o.suffix.lower() == ".chunklist")
-            # Relê a imagem no pendrive e confere com a assinatura da Apple.
-            recovery.verify(dmg, cnk, lambda a, b: self.step("verify", pct=a / b * 100))
-            self.log("Imagem no pendrive conferida com a assinatura da Apple.")
+            # Relê a imagem direto do pendrive (sem cache) e confere com a assinatura da Apple.
+            self.log("Relendo a imagem direto do pendrive para conferir a gravação...")
+            t0 = time.time()
+            recovery.verify(dmg, cnk, lambda a, b: self.step("verify", pct=a / b * 100), unbuffered=True)
+            self.log("Imagem no pendrive conferida com a assinatura da Apple ({:.0f} s).".format(time.time() - t0))
             self.step(cur, "done", 100)
 
             cur = "eject"

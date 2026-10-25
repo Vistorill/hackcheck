@@ -11,7 +11,7 @@ import recovery
 import scanner
 import usbdrive as usb
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 
 
 def base_dir():
@@ -47,9 +47,9 @@ class Api:
         r = webview.windows[0].create_file_dialog(webview.FileDialog.FOLDER)
         return r[0] if r else None
 
-    def validate_efi(self, path, net=None):
+    def validate_efi(self, path, net=None, version=None, hw=None):
         try:
-            return efi.validate(path, net)
+            return efi.validate(path, net, version, hw)
         except Exception as e:
             return {"ok": False, "errors": [str(e)], "warnings": []}
 

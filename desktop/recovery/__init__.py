@@ -66,12 +66,71 @@ def _download(url, token, dest, progress, cancel):
     os.replace(part, dest)
 
 
-def verify(dmg, cnk, progress=None):
-    """Verifica o .dmg contra o chunklist assinado pela Apple. Lança RuntimeError se falhar."""
+class UnbufferedReader:
+    """Leitura sem o cache do Windows (FILE_FLAG_NO_BUFFERING), para conferir o que
+    realmente foi gravado no pendrive. As leituras precisam ser alinhadas ao setor,
+    então lê blocos de 8 MB em memória alinhada e entrega fatias deles."""
+    BLOCK = 8 << 20
+
+    def __init__(self, path):
+        import ctypes
+        from ctypes import wintypes
+        self.k = k = ctypes.WinDLL("kernel32", use_last_error=True)
+        k.CreateFileW.restype = wintypes.HANDLE
+        k.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p,
+                                  wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+        k.ReadFile.argtypes = [wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+                               ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
+        k.VirtualAlloc.restype = ctypes.c_void_p
+        k.VirtualAlloc.argtypes = [ctypes.c_void_p, ctypes.c_size_t, wintypes.DWORD, wintypes.DWORD]
+        k.VirtualFree.argtypes = [ctypes.c_void_p, ctypes.c_size_t, wintypes.DWORD]
+        k.CloseHandle.argtypes = [wintypes.HANDLE]
+        GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING = 0x80000000, 1, 3
+        FILE_FLAG_NO_BUFFERING, FILE_FLAG_SEQUENTIAL_SCAN = 0x20000000, 0x08000000
+        self.h = k.CreateFileW(str(path), GENERIC_READ, FILE_SHARE_READ, None, OPEN_EXISTING,
+                               FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN, None)
+        if self.h in (None, ctypes.c_void_p(-1).value):
+            raise OSError(ctypes.get_last_error(), "Não foi possível abrir " + str(path))
+        self.buf = k.VirtualAlloc(None, self.BLOCK, 0x3000, 0x04)  # alinhado à página
+        self.ctypes, self.wintypes = ctypes, wintypes
+        self.pending = b""
+
+    def _fill(self):
+        n = self.wintypes.DWORD(0)
+        if not self.k.ReadFile(self.h, self.buf, self.BLOCK, self.ctypes.byref(n), None):
+            raise OSError(self.ctypes.get_last_error(), "Erro de leitura no pendrive")
+        return self.ctypes.string_at(self.buf, n.value)
+
+    def read(self, size):
+        parts, have = [self.pending], len(self.pending)
+        while have < size:
+            data = self._fill()
+            if not data:
+                break
+            parts.append(data)
+            have += len(data)
+        blob = b"".join(parts)
+        self.pending = blob[size:]
+        return blob[:size]
+
+    def close(self):
+        self.k.VirtualFree(self.buf, 0, 0x8000)
+        self.k.CloseHandle(self.h)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        self.close()
+
+
+def verify(dmg, cnk, progress=None, unbuffered=False):
+    """Verifica o .dmg contra o chunklist assinado pela Apple. Lança RuntimeError se falhar.
+    Com unbuffered=True lê direto do dispositivo, ignorando o cache do Windows."""
     total = os.path.getsize(dmg)
     done = 0
     try:
-        with open(dmg, "rb") as f:
+        with (UnbufferedReader(dmg) if unbuffered else open(dmg, "rb")) as f:
             for i, (size, digest) in enumerate(mr.verify_chunklist(cnk), 1):
                 data = f.read(size)
                 if len(data) != size or mr.hashlib.sha256(data).digest() != digest:
