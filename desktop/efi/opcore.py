@@ -5,6 +5,7 @@ ferramenta, abre a janela dela e acompanha a pasta Results/EFI até a EFI ficar 
 """
 import io
 import os
+import plistlib
 import shutil
 import subprocess
 import threading
@@ -16,6 +17,16 @@ from urllib.request import Request, urlopen
 ZIP_URL = "https://github.com/lzhoang2801/OpCore-Simplify/archive/refs/heads/main.zip"
 SHA_URL = "https://api.github.com/repos/lzhoang2801/OpCore-Simplify/commits/main"
 CREATE_NEW_CONSOLE = 0x00000010
+
+
+def is_final_config(path):
+    try:
+        with open(path, "rb") as f:
+            cfg = plistlib.load(f)
+    except Exception:
+        return False  # ainda sendo gravado
+    serial = cfg.get("PlatformInfo", {}).get("Generic", {}).get("SystemSerialNumber", "")
+    return bool(serial) and serial != "W00000000001" and not set(serial) <= {"0", "W"}
 
 
 class Generator:
@@ -70,8 +81,12 @@ class Generator:
         try:
             if not (self.dir / "OpCore-Simplify.bat").is_file():
                 self._download()
-            # Remove uma EFI antiga para não confundir com a nova.
-            shutil.rmtree(self.dir / "Results", ignore_errors=True)
+            # Guarda a EFI anterior (em vez de apagar) para não confundir com a nova.
+            res = self.dir / "Results"
+            if res.exists():
+                old = self.dir / "Results-anterior"
+                shutil.rmtree(old, ignore_errors=True)
+                os.replace(res, old)
             self.started = time.time()
             self._set(phase="running", pct=0, efi=None,
                       message="Siga os passos na janela do OpCore Simplify.")
@@ -99,8 +114,12 @@ class Generator:
     def _efi_ready(self):
         r = self.results()
         cfg = r / "OC" / "config.plist"
-        # A pasta Results é apagada antes de abrir a ferramenta, então qualquer EFI aqui é nova.
+        # A pasta Results é movida antes de abrir a ferramenta, então qualquer EFI aqui é nova.
         if not (cfg.is_file() and (r / "BOOT" / "BOOTx64.efi").is_file()):
+            return None
+        # O OpCore Simplify copia o config de exemplo do OpenCore no começo da build e só
+        # grava o definitivo no final: espera até ter um número de série gerado.
+        if not is_final_config(cfg):
             return None
         total = sum(f.stat().st_size for f in r.rglob("*") if f.is_file())
         return (total, cfg.stat().st_mtime)

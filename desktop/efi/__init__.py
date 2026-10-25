@@ -200,6 +200,16 @@ def validate(path, net=None, version=None, hw=None):
         errors.append("config.plist inválido: " + str(e))
         return res
 
+    # O config de exemplo do OpenCore (Sample.plist) indica uma EFI inacabada: o OpCore
+    # Simplify copia esse arquivo no começo da geração e só grava o definitivo no final.
+    gen = cfg.get("PlatformInfo", {}).get("Generic", {})
+    ba = _boot_args(cfg)
+    if gen.get("SystemSerialNumber") == "W00000000001" and ba.strip() == "-v keepsyms=1":
+        res["smbios"] = gen.get("SystemProductName", "")
+        errors.append("EFI incompleta: o config.plist ainda é o exemplo do OpenCore. A geração no OpCore "
+                      "Simplify não terminou (ou parou com erro). Conclua a opção 6 (Build) na janela dele.")
+        return res
+
     # Arquivos referenciados no config.plist precisam existir.
     kexts = {}
     for k in cfg.get("Kernel", {}).get("Add", []):

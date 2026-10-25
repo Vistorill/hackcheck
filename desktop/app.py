@@ -15,7 +15,7 @@ import scanner
 import usbdrive as usb
 from efi.opcore import Generator
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 GEN = Generator(creator.data_dir() / "tools")
 
 
