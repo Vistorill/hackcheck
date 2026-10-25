@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HackCheck – Seu PC roda macOS?</title>
+<meta name="description" content="HackCheck verifica se o seu PC é compatível com Hackintosh, indica a versão máxima do macOS e guia a criação do pendrive de instalação com OpenCore. Gratuito e open source.">
+<meta property="og:title" content="HackCheck – Seu PC roda macOS?">
+<meta property="og:description" content="Verificador de compatibilidade Hackintosh gratuito e open source.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+<style>
+:root{--bg:#f6f7f9;--pn:#fff;--tx:#12161c;--mu:#5d6675;--bd:#dde1e7;--ac:#2563eb;--ac2:#1d4ed8;--ok:#17803d;--wa:#a65f00;--ba:#c62828;--okb:#dcf5e5;--wab:#fdecc8;--bab:#fcdcdc;--cd:#eceff3;--hero:linear-gradient(160deg,#eef3ff 0%,#f6f7f9 70%)}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1116;--pn:#151b23;--tx:#e6eaf0;--mu:#8d97a6;--bd:#28303b;--ac:#5b8cff;--ac2:#7aa2ff;--ok:#4cd07d;--wa:#f0b23e;--ba:#ff6b6b;--okb:#12301f;--wab:#3a2c0e;--bab:#3b1717;--cd:#1c242e;--hero:linear-gradient(160deg,#131c2e 0%,#0d1116 70%)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--ac)}
+.w{max-width:1080px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
+header .w{display:flex;align-items:center;gap:20px;height:60px}
+.logo{font-weight:800;font-size:18px;color:var(--tx);text-decoration:none;margin-right:auto}
+header nav a{color:var(--mu);text-decoration:none;font-size:14px}header nav a:hover{color:var(--tx)}
+header nav{display:flex;gap:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;text-decoration:none;border:0;border-radius:10px;padding:12px 20px;font:600 15px/1 inherit;font-family:inherit;cursor:pointer}
+.btn:hover{background:var(--ac2)}.btn.g{background:var(--pn);color:var(--tx);border:1px solid var(--bd)}.btn.g:hover{background:var(--cd)}
+.btn.sm{padding:8px 14px;font-size:14px}
+.hero{background:var(--hero);padding:80px 0 70px;text-align:center}
+.tag{display:inline-block;background:var(--cd);color:var(--mu);border-radius:99px;padding:4px 12px;font-size:13px;margin-bottom:18px}
+h1{font-size:clamp(32px,6vw,54px);line-height:1.1;margin:0 0 18px;letter-spacing:-.02em}
+.hero p{font-size:clamp(16px,2.2vw,19px);color:var(--mu);max-width:640px;margin:0 auto 30px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.note{font-size:13px;color:var(--mu);margin-top:14px}
+section{padding:70px 0}
+h2{font-size:clamp(24px,4vw,34px);margin:0 0 10px;letter-spacing:-.01em}
+.lead{color:var(--mu);margin:0 0 34px;max-width:680px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;counter-reset:s}
+.card{background:var(--pn);border:1px solid var(--bd);border-radius:14px;padding:22px}
+.steps .card:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;font-weight:700;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0;color:var(--mu);font-size:15px}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.feat .ic{font-size:26px;margin-bottom:8px}
+.alt{background:var(--pn);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.chk{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+label{font-size:13px;color:var(--mu);font-weight:600;display:block;margin-bottom:6px}
+input{width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+input:focus{outline:2px solid var(--ac);outline-offset:1px}
+.res{margin-top:20px}
+.ban{border-radius:12px;padding:16px 18px;font-weight:700;font-size:18px}
+.ban small{display:block;font-weight:400;font-size:14px;margin-top:4px}
+.ban.ok{background:var(--okb);color:var(--ok)}.ban.warn{background:var(--wab);color:var(--wa)}.ban.bad{background:var(--bab);color:var(--ba)}
+.res ul{margin:12px 0 0;padding-left:20px}.res li{margin:4px 0}
+.b{display:inline-block;padding:1px 8px;border-radius:6px;font-size:12px;font-weight:700;margin-right:6px}.b.ok{background:var(--okb);color:var(--ok)}.b.warn{background:var(--wab);color:var(--wa)}.b.bad{background:var(--bab);color:var(--ba)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.chip{padding:3px 10px;border-radius:99px;background:var(--cd);color:var(--mu);font-size:12px}.chip.y{background:var(--okb);color:var(--ok);font-weight:600}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:560px;font-size:15px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--bd);vertical-align:top}th{color:var(--mu);font-size:13px}
+.road{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.road .card b{display:block;font-size:13px;margin-bottom:4px}
+.done b{color:var(--ok)}.now b{color:var(--ac)}.next b{color:var(--mu)}
+details{background:var(--pn);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:600}details p{color:var(--mu);margin:10px 0 0}
+.dl{text-align:center}
+.dl .card{max-width:640px;margin:0 auto;padding:34px}
+footer{border-top:1px solid var(--bd);padding:30px 0;color:var(--mu);font-size:14px}
+footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between}
+@media (max-width:760px){header nav{display:none}.chk{grid-template-columns:1fr}.hero{padding:56px 0 50px}section{padding:52px 0}}
+</style>
+</head>
+<body>
+
+<header><div class="w">
+<a class="logo" href="#">🖥️ HackCheck</a>
+<nav><a href="#como">Como funciona</a><a href="#verificar">Verificar</a><a href="#recursos">Recursos</a><a href="#roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>
+<a class="btn sm g js-repo" href="#">GitHub</a>
+</div></header>
+
+<div class="hero"><div class="w">
+<span class="tag">Open source · v0.1 em desenvolvimento</span>
+<h1>Descubra se o seu PC roda macOS</h1>
+<p>O HackCheck analisa o seu hardware, mostra qual a versão máxima do macOS compatível e guia você até o pendrive de instalação com OpenCore, passo a passo.</p>
+<div class="cta">
+<a class="btn" href="#verificar">Verificar agora, grátis</a>
+<a class="btn g" href="#download">Baixar para Windows</a>
+</div>
+<div class="note">Sem cadastro. Seus dados de hardware não saem do seu computador.</div>
+</div></div>
+
+<section id="como"><div class="w">
+<h2>Como funciona</h2>
+<p class="lead">Três etapas, do "será que dá?" até o pendrive pronto.</p>
+<div class="steps">
+<div class="card"><h3>Verifique online</h3><p>Digite sua CPU e sua placa de vídeo aqui no site e veja na hora se há chance de rodar o macOS.</p></div>
+<div class="card"><h3>Instale o HackCheck</h3><p>O programa para Windows lê todo o hardware automaticamente e gera um relatório completo: CPU, GPU, rede, áudio e discos.</p></div>
+<div class="card"><h3>Crie o pendrive</h3><p>Com o PC aprovado, o HackCheck gera a EFI, baixa o macOS direto da Apple e prepara o pendrive de instalação.</p></div>
+</div>
+</div></section>
+
+<section id="verificar" class="alt"><div class="w">
+<h2>Verificação rápida</h2>
+<p class="lead">Digite os nomes como aparecem no Gerenciador de Dispositivos do Windows. Para uma análise completa (rede, áudio, discos), use a <a href="dashboard/">dashboard web</a> ou o programa.</p>
+<form class="chk" id="f">
+<div><label for="cpu">Processador (CPU)</label><input id="cpu" list="lc" placeholder="ex.: Intel Core i7-8700K" autocomplete="off"></div>
+<div><label for="gpu">Placa de vídeo (GPU)</label><input id="gpu" list="lg" placeholder="ex.: AMD Radeon RX 580" autocomplete="off"></div>
+<button class="btn" type="submit">Verificar</button>
+</form>
+<datalist id="lc"><option value="Intel Core i5-9400F"><option value="Intel Core i7-8700K"><option value="Intel Core i5-10400"><option value="Intel Core i7-12700K"><option value="Intel Core i3-6100"><option value="AMD Ryzen 5 5600X"><option value="AMD Ryzen 7 3700X"><option value="Intel Core Ultra 7 155H"></datalist>
+<datalist id="lg"><option value="AMD Radeon RX 580"><option value="AMD Radeon RX 6600 XT"><option value="AMD Radeon RX 5700 XT"><option value="AMD Radeon RX 6500 XT"><option value="AMD Radeon RX 7800 XT"><option value="NVIDIA GeForce RTX 3060"><option value="NVIDIA GeForce GTX 1060"><option value="Intel UHD Graphics 630"><option value="Intel UHD Graphics 770"></datalist>
+<div class="res" id="res" aria-live="polite"></div>
+</div></section>
+
+<section id="recursos"><div class="w">
+<h2>O que o HackCheck faz</h2>
+<p class="lead">Ele junta as melhores ferramentas da comunidade Hackintosh em um fluxo só, sem você precisar decifrar fóruns.</p>
+<div class="feat">
+<div class="card"><div class="ic">🔍</div><h3>Scanner automático</h3><p>Lê CPU, GPU, placa-mãe, memória, rede, áudio e discos, sem você digitar nada.</p></div>
+<div class="card"><div class="ic">✅</div><h3>Veredito claro</h3><p>Aprovado, aprovado com ressalvas ou reprovado, com o motivo de cada componente e o que trocar.</p></div>
+<div class="card"><div class="ic">🍎</div><h3>macOS máximo</h3><p>Mostra até qual versão o seu hardware chega, de High Sierra até o Tahoe 26.</p></div>
+<div class="card"><div class="ic">⚙️</div><h3>EFI automática</h3><p>Gera a pasta EFI do OpenCore com o OpCore Simplify, a partir do hardware detectado.</p></div>
+<div class="card"><div class="ic">💾</div><h3>Pendrive guiado</h3><p>Baixa o instalador oficial da Apple e prepara o pendrive, com confirmação dupla do disco.</p></div>
+<div class="card"><div class="ic">🔌</div><h3>Pós-instalação</h3><p>Guia de BIOS e mapeamento de portas USB com o USBToolBox.</p></div>
+</div>
+</div></section>
+
+<section class="alt"><div class="w">
+<h2>Hardware em resumo</h2>
+<p class="lead">Um panorama do que costuma funcionar. A verificação acima dá o resultado para o seu modelo.</p>
+<div class="tw"><table>
+<tr><th>Componente</th><th>Funciona bem</th><th>Com ajustes</th><th>Não funciona</th></tr>
+<tr><td><b>CPU Intel</b></td><td>6ª a 10ª geração</td><td>2ª a 4ª, 11ª a 14ª geração</td><td>Core Ultra</td></tr>
+<tr><td><b>CPU AMD</b></td><td>—</td><td>Ryzen e Threadripper (patches)</td><td>FX, Athlon, APUs como GPU</td></tr>
+<tr><td><b>GPU AMD</b></td><td>RX 470–590, RX 5000, RX 6600–6900, Vega</td><td>RX 550</td><td>RX 6400/6500, RX 7000+</td></tr>
+<tr><td><b>GPU NVIDIA</b></td><td>—</td><td>Kepler (GT/GTX 600–700) até Big Sur</td><td>GTX 16xx, RTX</td></tr>
+<tr><td><b>GPU Intel</b></td><td>HD 530/630, UHD 6xx</td><td>Iris Plus (Ice Lake)</td><td>UHD 7xx, Iris Xe, Arc</td></tr>
+<tr><td><b>Wi-Fi</b></td><td>Broadcom (BCM94360, Fenvi)</td><td>Intel (itlwm)</td><td>Realtek, MediaTek</td></tr>
+</table></div>
+</div></section>
+
+<section id="download" class="dl"><div class="w">
+<div class="card">
+<h2>HackCheck para Windows</h2>
+<p class="lead" style="margin:0 auto 24px">O programa está em desenvolvimento. Acompanhe as versões no GitHub. Enquanto isso, a dashboard web já faz a análise completa com o script de scanner.</p>
+<div class="cta">
+<a class="btn js-rel" href="#">Ver versões no GitHub</a>
+<a class="btn g" href="dashboard/">Abrir dashboard web</a>
+</div>
+<div class="note">Windows 10 ou 11 · Pendrive de 16 GB ou mais · Gratuito (licença MIT)</div>
+</div>
+</div></section>
+
+<section id="roadmap" class="alt"><div class="w">
+<h2>Roadmap</h2>
+<p class="lead">O projeto é construído em etapas, para cada versão já entregar algo útil.</p>
+<div class="road">
+<div class="card done"><b>✔ CONCLUÍDO</b><h3>Dashboard web</h3><p>Motor de regras, scanner via PowerShell e guia do pendrive.</p></div>
+<div class="card now"><b>● EM ANDAMENTO</b><h3>v0.1 · Scanner desktop</h3><p>Programa para Windows que lê o hardware e mostra o veredito.</p></div>
+<div class="card next"><b>PRÓXIMO</b><h3>v0.2 · Gerador de EFI</h3><p>Integração com o OpCore Simplify.</p></div>
+<div class="card next"><b>PRÓXIMO</b><h3>v0.3 · Criador de pendrive</h3><p>Download do macOS (gibMacOS) e preparo do pendrive.</p></div>
+<div class="card next"><b>FUTURO</b><h3>Comunidade</h3><p>Banco de EFIs que funcionaram, Linux, inglês e espanhol.</p></div>
+</div>
+</div></section>
+
+<section id="faq"><div class="w">
+<h2>Perguntas frequentes</h2>
+<details><summary>O que é um Hackintosh?</summary><p>É um PC comum rodando o macOS. Isso é possível com o OpenCore, um bootloader que faz o hardware do PC se parecer com o de um Mac.</p></details>
+<details><summary>O HackCheck garante que a instalação vai funcionar?</summary><p>Não. Ele aponta a compatibilidade com base em regras da comunidade e automatiza etapas, mas cada PC pode exigir testes e ajustes. Confirme sempre no guia Dortania.</p></details>
+<details><summary>Qual é a última versão do macOS para PCs?</summary><p>O macOS 26 Tahoe é o último compatível com processadores Intel. As versões seguintes exigem Apple Silicon, então não rodam em Hackintosh.</p></details>
+<details><summary>Meus dados são enviados para algum servidor?</summary><p>Não. A verificação do site roda no seu navegador, e o programa analisa o hardware localmente. Nada é enviado sem você pedir.</p></details>
+<details><summary>Notebook funciona?</summary><p>Às vezes, mas é bem mais difícil: Wi-Fi, trackpad, bateria e tela costumam exigir ajustes extras. Desktops são o caminho mais seguro.</p></details>
+<details><summary>É legal?</summary><p>O contrato de licença da Apple restringe o macOS a hardware da Apple. O HackCheck é um projeto educacional, sem vínculo com a Apple, e nunca distribui o macOS: o instalador é baixado direto dos servidores da Apple. Use por sua conta e risco.</p></details>
+<details><summary>Como posso contribuir?</summary><p>Abra uma issue no GitHub com o resultado real da sua instalação, ou envie um pull request corrigindo as regras. Sempre cite a fonte.</p></details>
+</div></section>
+
+<footer><div class="w">
+<span>🖥️ HackCheck · open source, licença MIT</span>
+<span><a class="js-repo" href="#">GitHub</a> · <a href="dashboard/">Dashboard</a> · <a href="https://dortania.github.io/OpenCore-Install-Guide/" rel="noopener">Guia Dortania</a></span>
+<span>Sem vínculo com a Apple Inc. macOS é marca registrada da Apple Inc.</span>
+</div></footer>
+
+<script src="assets/rules.js"></script>
+<script>
+var REPO='Vistorill/hackcheck';
+document.querySelectorAll('.js-repo').forEach(function(a){a.href='https://github.com/'+REPO});
+document.querySelectorAll('.js-rel').forEach(function(a){a.href='https://github.com/'+REPO+'/releases'});
+
+var LB={ok:'Compatível',warn:'Ressalvas',bad:'Incompatível'};
+document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();
+var c=document.getElementById('cpu').value.trim(),g=document.getElementById('gpu').value.trim(),out=document.getElementById('res');
+if(!c||!g){out.innerHTML='<div class="ban warn">Preencha a CPU e a GPU.</div>';return}
+// Normaliza nomes digitados livremente para o formato do Windows (ex.: "i7 8700k" → "i7-8700k").
+var cpu=c.replace(/\b(i[3579])\s+(\d{4,5})/i,'$1-$2');
+var a=analyze({cpu:cpu,gpu:[g]});
+var vt={ok:['✔ Boa chance de rodar o macOS','CPU e GPU compatíveis.'],warn:['⚠ Possível, com ressalvas','Dá para instalar, mas algum componente exige ajustes ou troca.'],bad:['✖ Não recomendado','Há componentes que impedem a instalação.']}[a.v];
+var h='<div class="ban '+a.v+'">'+vt[0]+'<small>'+vt[1]+(a.mx>=0?' macOS máximo: <b>'+esc(V[a.mx])+'</b>.':'')+'</small></div>';
+h+='<div class="card" style="margin-top:12px"><ul>'+a.it.map(function(x){return '<li><span class="b '+x.s+'">'+LB[x.s]+'</span><b>'+esc(x.c)+'</b>: '+esc(x.t)+'</li>'}).join('')+'</ul>';
+h+='<div class="chips">'+V.map(function(n,i){return '<span class="chip'+(i<=a.mx?' y':'')+'">'+esc(n)+'</span>'}).join('')+'</div>';
+h+='<p class="note" style="margin-top:14px">Resultado preliminar. Rede, áudio e discos também importam: <a href="#download">use o programa</a> ou a <a href="dashboard/">dashboard</a> para a análise completa.</p></div>';
+out.innerHTML=h});
+</script>
+</body>
+</html>

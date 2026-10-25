@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HackCheck – Verificador de compatibilidade Hackintosh</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f4f6;--pn:#fff;--tx:#14181f;--mu:#5d6675;--bd:#d9dde4;--ok:#17803d;--wa:#a65f00;--ba:#c62828;--ac:#2563eb;--okb:#dcf5e5;--wab:#fdecc8;--bab:#fcdcdc;--cd:#eceff3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1217;--pn:#161c24;--tx:#e6eaf0;--mu:#8d97a6;--bd:#2a323d;--ok:#4cd07d;--wa:#f0b23e;--ba:#ff6b6b;--ac:#6ea0ff;--okb:#12301f;--wab:#3a2c0e;--bab:#3b1717;--cd:#1d2530}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+nav{background:var(--pn);border-right:1px solid var(--bd);padding:14px 10px}
+nav h1{font-size:16px;margin:2px 8px 12px}nav h1 small{display:block;color:var(--mu);font-weight:400;font-size:11px}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--tx);padding:8px 10px;border-radius:6px;cursor:pointer;font:inherit}
+nav button:hover{background:var(--cd)}nav button.on{background:var(--ac);color:#fff}
+main{padding:18px;min-width:0}
+section{display:none}section.on{display:block}
+h2{margin:0 0 12px;font-size:19px}h3{margin:18px 0 8px;font-size:15px}
+.card{background:var(--pn);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px}
+.ban{border-radius:10px;padding:16px;font-size:17px;font-weight:700;margin-bottom:12px}
+.ban small{display:block;font-weight:400;font-size:13px;margin-top:4px}
+.ban.ok{background:var(--okb);color:var(--ok)}.ban.warn{background:var(--wab);color:var(--wa)}.ban.bad{background:var(--bab);color:var(--ba)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--pn);border:1px solid var(--bd);border-radius:10px;padding:12px}.stat b{font-size:24px;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:4px 10px;border-radius:99px;background:var(--cd);color:var(--mu);font-size:12px}.chip.y{background:var(--okb);color:var(--ok);font-weight:600}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:520px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd);vertical-align:top}th{color:var(--mu);font-weight:600;font-size:12px}
+.b{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}.b.ok{background:var(--okb);color:var(--ok)}.b.warn{background:var(--wab);color:var(--wa)}.b.bad{background:var(--bab);color:var(--ba)}.b.info{background:var(--cd);color:var(--mu)}
+pre{background:var(--cd);border-radius:8px;padding:10px;overflow-x:auto;font:12px/1.5 ui-monospace,Consolas,monospace;margin:6px 0}
+textarea{width:100%;min-height:130px;background:var(--cd);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:12px ui-monospace,Consolas,monospace}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font:inherit;margin:6px 6px 0 0}.btn.g{background:var(--cd);color:var(--tx)}
+.step{display:flex;gap:10px;align-items:flex-start}.step input{margin-top:4px;width:18px;height:18px}
+.bar{height:8px;background:var(--cd);border-radius:99px;overflow:hidden;margin:6px 0 12px}.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+.mu{color:var(--mu)}ul{padding-left:20px;margin:6px 0}
+@media (max-width:720px){.app{grid-template-columns:1fr}nav{display:flex;overflow-x:auto;gap:4px;border-right:0;border-bottom:1px solid var(--bd)}nav h1{display:none}nav button{white-space:nowrap;width:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+<h1><a href="../" style="color:inherit;text-decoration:none">🖥️ HackCheck</a><small>Open source · v0.1 MVP</small></h1>
+<button data-t="painel">📊 Painel</button>
+<button data-t="scanner">🔍 Scanner</button>
+<button data-t="hw">🧩 Hardware</button>
+<button data-t="compat">✅ Compatibilidade</button>
+<button data-t="usb">🔌 Mapeamento USB</button>
+<button data-t="pen">💾 Criar pendrive</button>
+<button data-t="docs">📚 Docs e contribuição</button>
+</nav>
+<main>
+
+<section id="painel">
+<h2>Painel geral</h2>
+<div id="verd"></div>
+<div class="grid" id="stats"></div>
+<div class="card"><b>Versões do macOS compatíveis</b><div class="chips" id="vers" style="margin-top:8px"></div>
+<p class="mu" style="margin:10px 0 0">O macOS 27 Golden Gate exige Apple Silicon: o macOS 26 Tahoe é o último que roda em hardware Intel/AMD com OpenCore.</p></div>
+<div class="card" id="issues"></div>
+</section>
+
+<section id="scanner">
+<h2>Scanner de hardware</h2>
+<div class="card"><p>O navegador não consegue ler o hardware do PC. Rode o script abaixo no <b>PowerShell</b> do Windows: ele copia um JSON para a área de transferência. Cole o resultado na caixa e clique em Analisar.</p>
+<pre id="ps">$o=[ordered]@{cpu=(Get-CimInstance Win32_Processor|Select -First 1).Name;gpu=@(Get-CimInstance Win32_VideoController|%{$_.Name});board=(Get-CimInstance Win32_BaseBoard).Product;ram=[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB);net=@(Get-CimInstance Win32_NetworkAdapter|?{$_.PhysicalAdapter}|%{$_.Name});audio=@(Get-CimInstance Win32_SoundDevice|%{$_.Name});disk=@(Get-CimInstance Win32_DiskDrive|%{$_.Model})}
+$o|ConvertTo-Json -Compress|Set-Clipboard</pre>
+<button class="btn g" id="cp">Copiar script</button></div>
+<div class="card"><textarea id="inp" placeholder="Cole aqui o JSON gerado pelo scanner"></textarea>
+<button class="btn" id="go">Analisar</button><button class="btn g" id="s1">Exemplo aprovado</button><button class="btn g" id="s2">Exemplo reprovado</button>
+<p id="err" class="mu"></p></div>
+</section>
+
+<section id="hw"><h2>Hardware detectado</h2><div class="card tw" id="hwt"></div></section>
+
+<section id="compat"><h2>Análise de compatibilidade</h2><div class="card tw" id="ct"></div>
+<p class="mu">As regras são um ponto de partida (arquivo RULES no código) e devem ser confirmadas no guia Dortania. Contribuições são bem-vindas.</p></section>
+
+<section id="usb">
+<h2>Mapeamento de portas USB</h2>
+<div class="card"><p>Sem o mapeamento, portas USB 3 podem não funcionar ou o limite de portas do macOS pode travar o instalador. O mapeamento é feito <b>depois</b> do primeiro boot, com o hardware real.</p>
+<ol>
+<li>Inicie o macOS (ou o Windows/Linux, pois o USBToolBox funciona nos três) e baixe o <b>USBToolBox</b>.</li>
+<li>Abra a ferramenta e clique em <b>Discover Ports</b>.</li>
+<li>Plugue um pendrive USB 2.0 e depois um USB 3.0 em <b>cada</b> porta física, uma por vez, e aguarde o reconhecimento.</li>
+<li>Na aba Select Ports, desmarque as portas sem uso e marque o tipo de cada conector (USB 3, USB 2, interno/Bluetooth).</li>
+<li>Gere o <b>UTBMap.kext</b> e coloque em EFI/OC/Kexts, junto do USBToolBox.kext, e atualize o config.plist (ProperTree, Snapshot).</li>
+<li>Reinicie e teste todas as portas. Remova patches de limite de portas apenas se o mapa tiver 15 portas ou menos por controlador.</li>
+</ol></div>
+<div class="card"><b>Roadmap:</b> importar o JSON do USBToolBox nesta dashboard e mostrar um diagrama das portas do gabinete.</div>
+</section>
+
+<section id="pen">
+<h2>Criar o pendrive de instalação</h2>
+<div class="card"><div id="pg" class="mu">0 de 9 etapas</div><div class="bar"><i id="pb"></i></div><div id="steps"></div></div>
+<p class="mu">Importante: o HackCheck orquestra ferramentas que já existem (OpCore Simplify, gibMacOS). O resultado não é garantido: cada PC exige testes e ajustes.</p>
+</section>
+
+<section id="docs">
+<h2>Documentação e contribuição</h2>
+<div class="card"><h3 style="margin-top:0">Arquitetura</h3>
+<ol><li><b>Scanner</b> (PowerShell/Python): coleta CPU, GPU, placa, rede, áudio, discos e exporta JSON.</li>
+<li><b>Motor de regras</b> (esta dashboard): compara o JSON com a base RULES e calcula veredito e macOS máximo.</li>
+<li><b>Gerador de EFI</b>: chama o OpCore Simplify com o hardware report.</li>
+<li><b>Criador de pendrive</b>: baixa o instalador (gibMacOS), formata em GPT/FAT32 e copia a EFI.</li>
+<li><b>Mapeamento USB</b>: pós-instalação, via USBToolBox.</li></ol>
+<h3>Estrutura sugerida do repositório</h3>
+<pre>hackcheck/
+├─ dashboard/index.html      # esta interface
+├─ scanner/scan.ps1, scan.py # coleta de hardware
+├─ rules/cpu.json gpu.json net.json
+├─ tools/make_usb.ps1        # automação do pendrive
+├─ docs/                     # guias e FAQ
+└─ CONTRIBUTING.md, LICENSE</pre>
+<h3>Roadmap</h3>
+<ul><li>Mover as regras para arquivos JSON versionados e testados.</li><li>Scanner multiplataforma (Linux, laptops, detecção de trackpad e Wi-Fi).</li><li>Automação do pendrive (Windows e Linux) com confirmação do disco alvo.</li><li>Banco de EFIs que funcionaram, enviados pela comunidade.</li><li>Tradução para inglês e espanhol.</li></ul>
+<h3>Como contribuir</h3>
+<p>Abra uma issue com o relatório e o resultado real da instalação, ou envie um pull request alterando as regras. Sempre cite a fonte (guia Dortania, relato de teste).</p>
+<h3>Avisos</h3>
+<p class="mu">Projeto educacional, sem vínculo com a Apple. O contrato de licença da Apple restringe o macOS a hardware da Apple; use por sua conta e risco. Sugestão de licença: MIT.</p></div>
+</section>
+
+</main>
+</div>
+<script src="../assets/rules.js"></script>
+<script>
+var SA={cpu:'Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz',gpu:['AMD Radeon RX 580 Series'],board:'Z370 AORUS Gaming 5',ram:16,net:['Intel(R) Ethernet Connection (2) I219-V','Broadcom BCM94360CS2 802.11ac Wireless'],audio:['Realtek High Definition Audio'],disk:['Samsung SSD 970 EVO Plus 500GB']};
+var SB={cpu:'12th Gen Intel(R) Core(TM) i7-12700K',gpu:['NVIDIA GeForce RTX 3070','Intel(R) UHD Graphics 770'],board:'B660M',ram:32,net:['Realtek PCIe 2.5GbE Family Controller','Realtek 8852AE Wireless LAN 802.11ax'],audio:['Realtek High Definition Audio'],disk:['WD_BLACK SN850X 1000GB']};
+var LB={ok:'Compatível',warn:'Ressalvas',bad:'Incompatível',info:'Info'};
+function render(a,demo){
+var vt={ok:['✔ APROVADO para Hackintosh','Todos os componentes principais são compatíveis.'],warn:['⚠ APROVADO COM RESSALVAS','É possível instalar, mas alguns componentes exigem ajustes ou troca.'],bad:['✖ REPROVADO','Há componentes que impedem a instalação: '+a.bl.join(' ')]}[a.v];
+document.getElementById('verd').innerHTML='<div class="ban '+a.v+'">'+vt[0]+'<small>'+esc(vt[1])+(demo?' (dados de exemplo)':'')+'</small></div>';
+document.getElementById('stats').innerHTML=[['Componentes',a.it.length],['Compatíveis',a.cnt.ok],['Com ressalvas',a.cnt.warn],['Incompatíveis',a.cnt.bad],['macOS máximo',a.mx>=0?V[a.mx].split(' ')[0]:'—']].map(function(x){return '<div class="stat"><b>'+esc(x[1])+'</b><span class="mu">'+x[0]+'</span></div>'}).join('');
+document.getElementById('vers').innerHTML=V.map(function(n,i){return '<span class="chip'+(i<=a.mx?' y':'')+'">'+n+'</span>'}).join('');
+var is=a.it.filter(function(x){return x.s=='warn'||x.s=='bad'});
+document.getElementById('issues').innerHTML='<b>Pontos de atenção</b>'+(is.length?'<ul>'+is.map(function(x){return '<li><span class="b '+x.s+'">'+LB[x.s]+'</span> '+esc(x.c)+': '+esc(x.t)+'</li>'}).join('')+'</ul>':'<p class="mu">Nenhum.</p>');
+var g={};a.it.forEach(function(x){(g[x.c]=g[x.c]||[]).push(x)});
+document.getElementById('hwt').innerHTML='<table><tr><th>Categoria</th><th>Dispositivo</th></tr>'+Object.keys(g).map(function(k){return '<tr><td><b>'+esc(k)+'</b></td><td>'+g[k].map(function(x){return esc(x.n)}).join('<br>')+'</td></tr>'}).join('')+'</table>';
+document.getElementById('ct').innerHTML='<table><tr><th>Categoria</th><th>Dispositivo</th><th>Status</th><th>Observação</th></tr>'+a.it.map(function(x){return '<tr><td>'+esc(x.c)+'</td><td>'+esc(x.n)+'</td><td><span class="b '+x.s+'">'+LB[x.s]+'</span></td><td>'+esc(x.t)+'</td></tr>'}).join('')+'</table>'}
+function run(d,demo){render(analyze(d),demo)}
+var ST=[
+['Confirme a aprovação','Use o Scanner e confirme que o veredito é aprovado. Tenha em mãos um pendrive de 16 GB ou mais (USB 3) e um segundo computador com Windows e internet.',''],
+['Baixe o OpCore Simplify','Requer Python 3 instalado.','git clone https://github.com/lzhoang2801/OpCore-Simplify'],
+['Gere o relatório de hardware','Execute OpCore-Simplify.bat e use a opção de exportar/selecionar o relatório de hardware do próprio PC.',''],
+['Escolha o macOS e construa a EFI','Selecione a versão indicada no painel (Tahoe 26 é o máximo), ajuste kexts se necessário e escolha Build OpenCore EFI.',''],
+['Baixe o instalador do macOS','Use o gibMacOS para baixar o instalador oficial da Apple.','git clone https://github.com/corpnewt/gibMacOS'],
+['Crie o pendrive','Com o gibMacOS, rode o MakeInstall.bat (Windows) e selecione o pendrive correto. Atenção: o disco será apagado. O esquema deve ser GPT com partição EFI FAT32.',''],
+['Copie a EFI','Monte a partição EFI do pendrive (ex.: com MountEFI) e copie a pasta EFI gerada para a raiz dela.',''],
+['Configure a BIOS','Desative CSM e Secure Boot; ative UEFI, VT-d desligado (ou DisableIoMapper), Above 4G Decoding e XHCI Hand-off. Os nomes variam por fabricante.',''],
+['Instale e mapeie as USB','Inicie pelo pendrive, instale o macOS, copie a EFI para o disco interno e faça o mapeamento de USB (aba Mapeamento USB).','']];
+(function(){
+var h='';ST.forEach(function(s,i){h+='<label class="step"><input type="checkbox" data-i="'+i+'"><div><b>'+(i+1)+'. '+esc(s[0])+'</b><div class="mu">'+esc(s[1])+'</div>'+(s[2]?'<pre>'+esc(s[2])+'</pre>':'')+'</div></label><hr style="border:0;border-top:1px solid var(--bd)">'});
+document.getElementById('steps').innerHTML=h;
+document.getElementById('steps').addEventListener('change',function(){var n=document.querySelectorAll('#steps input:checked').length;
+document.getElementById('pg').textContent=n+' de '+ST.length+' etapas';document.getElementById('pb').style.width=(n/ST.length*100)+'%'})})();
+function show(t){if(!document.getElementById(t))t='painel';
+document.querySelectorAll('section').forEach(function(s){s.classList.toggle('on',s.id==t)});
+document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.t==t)});
+try{location.hash=t}catch(e){}window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){show(b.dataset.t)}});
+document.getElementById('s1').onclick=function(){document.getElementById('inp').value=JSON.stringify(SA);run(SA,true);show('painel')};
+document.getElementById('s2').onclick=function(){document.getElementById('inp').value=JSON.stringify(SB);run(SB,true);show('painel')};
+document.getElementById('go').onclick=function(){var e=document.getElementById('err');e.textContent='';
+try{var d=JSON.parse(document.getElementById('inp').value);if(!d||typeof d!='object')throw 0;run(d,false);show('painel')}catch(x){e.textContent='JSON inválido. Gere novamente com o script do scanner.'}};
+document.getElementById('cp').onclick=function(){var t=document.getElementById('ps').textContent;
+try{navigator.clipboard.writeText(t).then(function(){document.getElementById('cp').textContent='Copiado!'})}catch(e){var r=document.createRange();r.selectNode(document.getElementById('ps'));getSelection().removeAllRanges();getSelection().addRange(r)}};
+run(SA,true);
+show((location.hash||'').slice(1)||'painel');
+</script>
+</body>
+</html>
