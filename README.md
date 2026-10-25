@@ -67,7 +67,8 @@ python -m http.server 8000
 - [x] Landing page
 - [x] v0.1: programa para Windows com scanner automático
 - [x] v0.2: assistente de criação do pendrive (recovery da Apple + EFI escolhida pelo usuário)
-- [ ] v0.3: geração automática da EFI com OpCore Simplify
+- [x] v0.3: geração guiada da EFI com OpCore Simplify e busca de EFIs da comunidade
+- [ ] v0.4: geração da EFI sem interação (sem o console do OpCore Simplify)
 - [ ] Regras em JSON com testes
 - [ ] Banco de EFIs da comunidade, Linux, inglês e espanhol
 

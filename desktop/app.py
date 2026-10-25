@@ -1,6 +1,7 @@
 """HackCheck Desktop: abre a dashboard numa janela nativa e faz o scan do hardware."""
 import os
 import sys
+import webbrowser
 from pathlib import Path
 
 import webview
@@ -10,8 +11,10 @@ import efi
 import recovery
 import scanner
 import usbdrive as usb
+from efi.opcore import Generator
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
+GEN = Generator(creator.data_dir() / "tools")
 
 
 def base_dir():
@@ -52,6 +55,20 @@ class Api:
             return efi.validate(path, net, version, hw)
         except Exception as e:
             return {"ok": False, "errors": [str(e)], "warnings": []}
+
+    def efi_generate(self):
+        return GEN.start()
+
+    def efi_generate_status(self):
+        return GEN.status()
+
+    def efi_open_results(self):
+        GEN.open_results()
+
+    def open_url(self, url):
+        # Só links do GitHub/Dortania usados pela interface.
+        if url.startswith(("https://github.com/", "https://dortania.github.io/")):
+            webbrowser.open(url)
 
     def create_usb(self, params):
         return creator.start(params)

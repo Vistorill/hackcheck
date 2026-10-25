@@ -113,9 +113,39 @@ $o|ConvertTo-Json -Compress|Set-Clipboard</pre>
 <div class="card" id="w2"><h3 style="margin-top:0">2. Versão do macOS</h3>
 <div id="vlist" class="opts"></div><div id="tahoe"></div></div>
 
-<div class="card" id="w3"><h3 style="margin-top:0">3. Pasta EFI</h3>
-<p class="mu" style="margin-top:0">A EFI é a configuração do OpenCore para o seu PC. Gere com o <a href="https://github.com/lzhoang2801/OpCore-Simplify" target="_blank" rel="noopener">OpCore Simplify</a> (pasta <code>Results/EFI</code>) e selecione aqui. A geração automática chega na próxima versão.</p>
-<button class="btn g" id="efib">Escolher pasta EFI</button> <span id="efip" class="mu"></span>
+<div class="card" id="w3"><h3 style="margin-top:0">3. EFI (configuração do OpenCore para o seu PC)</h3>
+<p class="mu" style="margin-top:0">A EFI precisa ser feita para a combinação exata do seu processador, placa-mãe, placa de vídeo, rede e áudio. Por isso não existe um "download universal": o jeito mais seguro é gerar a partir do seu hardware.</p>
+<div class="opts" id="efimode">
+<label class="on"><input type="radio" name="em" value="gen" checked><div><b>Gerar a EFI para este PC</b> <span class="b ok">Recomendado</span><div class="mu">O HackCheck baixa o OpCore Simplify, que monta a EFI com o OpenCore e os drivers mais recentes para o seu hardware.</div></div></label>
+<label><input type="radio" name="em" value="have"><div><b>Usar uma EFI que já tenho</b><div class="mu">Escolha a pasta EFI no computador.</div></div></label>
+<label><input type="radio" name="em" value="find"><div><b>Procurar EFIs prontas da comunidade</b><div class="mu">Busca no GitHub por EFIs da sua placa-mãe. Use com cuidado.</div></div></label>
+</div>
+
+<div id="em-gen" style="margin-top:12px">
+<button class="btn" id="genb">⚙️ Gerar EFI para este PC</button> <span id="gens" class="mu"></span>
+<div id="genguide" style="display:none" class="note warn">
+<b>Siga estes passos na janela preta do OpCore Simplify que abriu:</b>
+<ol style="margin:8px 0 0">
+<li>Se ele perguntar sobre instalar o Python, responda <b>y</b>. Se perguntar sobre atualização, aceite.</li>
+<li>Digite <b>1</b> (Select Hardware Report) e Enter.</li>
+<li>Digite <b>E</b> e Enter para ele ler o hardware deste PC. Aguarde.</li>
+<li>Quando pedir a versão do macOS, escolha <b id="genver">Sequoia</b>. Nas outras perguntas, aceite o padrão com <b>Enter</b>.</li>
+<li>De volta ao menu, digite <b>6</b> (Build OpenCore EFI) e aguarde o download dos drivers.</li>
+<li>Pressione <b>Enter</b> nas telas finais. Pode fechar a janela depois.</li>
+</ol>
+<p style="margin:8px 0 0">O HackCheck detecta a EFI sozinho quando ela ficar pronta. Não precisa procurar a pasta.</p></div>
+</div>
+
+<div id="em-have" style="display:none;margin-top:12px">
+<button class="btn g" id="efib">Escolher pasta EFI</button>
+</div>
+
+<div id="em-find" style="display:none;margin-top:12px">
+<div class="note warn">⚠ EFIs de outras pessoas só funcionam se o hardware for <b>igual</b> ao seu (mesma placa-mãe, CPU da mesma geração, mesma GPU e versão de BIOS próxima). Prefira repositórios atualizados recentemente, com OpenCore 1.0.x, e <b>nunca use uma EFI com SMBIOS e número de série de outra pessoa</b>. Depois de baixar, extraia o ZIP e escolha a pasta EFI em "Usar uma EFI que já tenho": o HackCheck confere tudo.</div>
+<div id="findlinks" style="margin-top:8px"></div>
+</div>
+
+<div style="margin-top:10px"><span id="efip" class="mu"></span></div>
 <div id="efir"></div></div>
 
 <div class="card" id="w4"><h3 style="margin-top:0">4. Pendrive</h3>
@@ -257,6 +287,7 @@ if(W.ver==null||W.ver>mx)W.ver=rec;
 for(var i=mx;i>=Math.max(0,mx-4);i--)h+='<label class="'+(i==W.ver?'on':'')+'"><input type="radio" name="ver" value="'+i+'"'+(i==W.ver?' checked':'')+'><div><b>'+V[i]+'</b>'+(i==rec?' <span class="b ok">Recomendado</span>':'')+(i==T?' <span class="b warn">Último para PCs</span>':'')+'</div></label>';
 $('vlist').innerHTML=h;
 $('vlist').onchange=function(e){W.ver=+e.target.value;wizInit();efiCheck()};
+$('genver').textContent=V[W.ver];
 $('tahoe').innerHTML=W.ver==T&&a.tl.length?'<div class="note warn"><b>No Tahoe, com o seu hardware:</b><ul>'+a.tl.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ul></div>':'';
 wizCheck()}
 function efiShow(r){var h='';
@@ -300,8 +331,27 @@ function wizStart(){var d=W.disk;
 $('w6').style.display='';$('w7').style.display='none';$('jmsg').innerHTML='';$('jagain').style.display='none';
 api().create_usb({version:W.ver,efi:W.efi,disk:{number:d.number,uid:d.uid,size:d.size},net:LAST.d.net||[],hw:LAST.d}).then(function(id){
 W.job=id;$('conf').value='';wizCheck();W.timer=setInterval(jobPoll,500);jobPoll();$('w6').scrollIntoView({behavior:'smooth'})})}
+// Passo 3: geração guiada (OpCore Simplify), EFI própria ou busca na comunidade.
+function efiMode(m){['gen','have','find'].forEach(function(k){$('em-'+k).style.display=k==m?'':'none'});
+document.querySelectorAll('#efimode label').forEach(function(l){l.classList.toggle('on',l.querySelector('input').value==m)});
+if(m=='find')findLinks()}
+function findLinks(){var d=LAST&&!LAST.demo?LAST.d:{},q=[],cpu=(d.cpu||'').match(/i[3579]-(\d{4,5}\w*)|Ryzen\s+\d\s+(\d{4}\w*)/i),
+chip=(d.board||'').match(/\b([ABHXZ]\d{3})/i),gpu=((d.gpu||[]).join(' ').match(/RX\s*\d{3,4}(\s*XT)?/i)||[''])[0];
+if(d.board)q.push(['Placa-mãe exata: '+d.board,'"'+d.board+'" hackintosh EFI']);
+if(chip&&cpu)q.push(['Chipset + CPU: '+chip[1]+' + '+(cpu[1]||cpu[2]),chip[1]+' '+(cpu[1]||cpu[2])+' hackintosh EFI']);
+if(chip)q.push(['Chipset '+chip[1]+(gpu?' + '+gpu:''),chip[1]+' '+gpu+' opencore EFI']);
+$('findlinks').innerHTML=q.length?q.map(function(x){return '<button class="btn g" data-q="'+esc(x[1])+'">🔎 '+esc(x[0])+'</button>'}).join(''):'<p class="mu">Faça o scan do PC para gerar as buscas.</p>';
+$('findlinks').querySelectorAll('button').forEach(function(b){b.onclick=function(){
+api().open_url('https://github.com/search?type=repositories&s=updated&o=desc&q='+encodeURIComponent(b.dataset.q))}})}
+function genPoll(){api().efi_generate_status().then(function(s){var t={downloading:'⏳ Baixando o OpCore Simplify... '+s.pct+'%',running:'⏳ Aguardando a EFI ficar pronta...',done:'✅ '+s.message,closed:'⚠ '+s.message,error:'❌ '+s.message}[s.phase]||'';
+$('gens').textContent=t;$('genguide').style.display=s.phase=='running'?'':'none';
+$('genb').disabled=s.phase=='downloading'||s.phase=='running';
+if(s.phase=='done'&&s.efi&&W.efi!=s.efi){W.efi=s.efi;$('efip').textContent='EFI: '+s.efi;efiCheck()}
+if(s.phase=='downloading'||s.phase=='running')setTimeout(genPoll,1500)})}
 function wizBind(){
-$('efib').onclick=function(){api().choose_efi().then(function(p){if(!p)return;W.efi=p;$('efip').textContent=p;efiCheck()})};
+$('efimode').onchange=function(e){efiMode(e.target.value)};
+$('genb').onclick=function(){$('genver').textContent=V[W.ver];api().efi_generate().then(function(){setTimeout(genPoll,300)})};
+$('efib').onclick=function(){api().choose_efi().then(function(p){if(!p)return;W.efi=p;$('efip').textContent='EFI: '+p;efiCheck()})};
 $('dref').onclick=loadDisks;
 $('disk').onchange=function(){W.disk=this.value===''?null:W.disks[+this.value];diskInfo();wizCheck()};
 $('conf').oninput=wizCheck;
@@ -314,7 +364,7 @@ document.querySelector('nav button[data-t="pen"]').addEventListener('click',func
 var desk=false;
 function initDesk(){if(desk||!window.pywebview||!window.pywebview.api||!window.pywebview.api.scan)return;desk=true;
 document.getElementById('deskscan').style.display='';document.getElementById('webscan').style.display='none';
-$('penweb').style.display='none';$('pendesk').style.display='';wizBind();wizInit();loadDisks();
+$('penweb').style.display='none';$('pendesk').style.display='';wizBind();wizInit();loadDisks();genPoll();
 document.getElementById('scan').onclick=deskScan;
 document.querySelector('nav h1 small').textContent='Desktop · v0.1';deskScan()}
 window.addEventListener('pywebviewready',initDesk);
