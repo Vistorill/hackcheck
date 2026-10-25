@@ -19,9 +19,14 @@ hackcheck/
 ├─ index.html            # landing page (GitHub Pages)
 ├─ dashboard/index.html  # dashboard web com análise completa
 ├─ assets/rules.js       # motor de regras, compartilhado
+├─ docs/                 # análises e especificações
 ├─ desktop/              # programa para Windows (Python + pywebview)
 │  ├─ app.py
 │  ├─ scanner/           # coleta de hardware
+│  ├─ recovery/          # download do recovery (macrecovery do OpenCorePkg)
+│  ├─ usbdrive/          # listar e formatar o pendrive
+│  ├─ efi/               # validação da EFI
+│  ├─ creator.py         # orquestra a criação do pendrive
 │  └─ build.ps1          # gera o HackCheck.exe
 ├─ LICENSE
 └─ CONTRIBUTING.md
@@ -60,9 +65,9 @@ python -m http.server 8000
 
 - [x] Dashboard web com motor de regras e scanner via PowerShell
 - [x] Landing page
-- [ ] v0.1: programa para Windows com scanner automático
-- [ ] v0.2: geração da EFI com OpCore Simplify
-- [ ] v0.3: criação do pendrive (gibMacOS)
+- [x] v0.1: programa para Windows com scanner automático
+- [x] v0.2: assistente de criação do pendrive (recovery da Apple + EFI escolhida pelo usuário)
+- [ ] v0.3: geração automática da EFI com OpCore Simplify
 - [ ] Regras em JSON com testes
 - [ ] Banco de EFIs da comunidade, Linux, inglês e espanhol
 

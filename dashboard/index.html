@@ -34,6 +34,14 @@ textarea{width:100%;min-height:130px;background:var(--cd);color:var(--tx);border
 .step{display:flex;gap:10px;align-items:flex-start}.step input{margin-top:4px;width:18px;height:18px}
 .bar{height:8px;background:var(--cd);border-radius:99px;overflow:hidden;margin:6px 0 12px}.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
 .mu{color:var(--mu)}ul{padding-left:20px;margin:6px 0}
+select,input{background:var(--cd);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit;width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.opts{display:grid;gap:6px}.opts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;cursor:pointer}
+.opts label.on{border-color:var(--ac);background:var(--cd)}.opts input{width:auto;margin-top:3px}
+.ck{list-style:none;padding:0}.ck li{margin:4px 0}
+.jst{list-style:none;padding:0;margin:0 0 8px}.jst li{display:flex;gap:8px;padding:3px 0}.jst .ic{width:20px;text-align:center}
+.jst li.running{font-weight:600}.jst li.pending{color:var(--mu)}
+.note{padding:10px;border-radius:8px;margin-top:8px}.note.warn{background:var(--wab);color:var(--wa)}.note.bad{background:var(--bab);color:var(--ba)}.note.ok{background:var(--okb);color:var(--ok)}
 @media (max-width:720px){.app{grid-template-columns:1fr}nav{display:flex;overflow-x:auto;gap:4px;border-right:0;border-bottom:1px solid var(--bd)}nav h1{display:none}nav button{white-space:nowrap;width:auto}}
 </style>
 </head>
@@ -94,8 +102,58 @@ $o|ConvertTo-Json -Compress|Set-Clipboard</pre>
 
 <section id="pen">
 <h2>Criar o pendrive de instalação</h2>
+<div id="penweb">
+<div class="card" style="border-color:var(--ac)"><b>💡 No programa HackCheck para Windows</b> este processo é automático: ele baixa o macOS da Apple, formata o pendrive e copia tudo. Aqui no site fica o passo a passo manual.</div>
 <div class="card"><div id="pg" class="mu">0 de 9 etapas</div><div class="bar"><i id="pb"></i></div><div id="steps"></div></div>
-<p class="mu">Importante: o HackCheck orquestra ferramentas que já existem (OpCore Simplify, gibMacOS). O resultado não é garantido: cada PC exige testes e ajustes.</p>
+</div>
+
+<div id="pendesk" style="display:none">
+<div class="card" id="w1"><h3 style="margin-top:0">1. Pré-checagem</h3><ul id="pre" class="ck"></ul></div>
+
+<div class="card" id="w2"><h3 style="margin-top:0">2. Versão do macOS</h3>
+<div id="vlist" class="opts"></div><div id="tahoe"></div></div>
+
+<div class="card" id="w3"><h3 style="margin-top:0">3. Pasta EFI</h3>
+<p class="mu" style="margin-top:0">A EFI é a configuração do OpenCore para o seu PC. Gere com o <a href="https://github.com/lzhoang2801/OpCore-Simplify" target="_blank" rel="noopener">OpCore Simplify</a> (pasta <code>Results/EFI</code>) e selecione aqui. A geração automática chega na próxima versão.</p>
+<button class="btn g" id="efib">Escolher pasta EFI</button> <span id="efip" class="mu"></span>
+<div id="efir"></div></div>
+
+<div class="card" id="w4"><h3 style="margin-top:0">4. Pendrive</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<select id="disk" style="flex:1;min-width:240px"><option value="">Carregando...</option></select>
+<button class="btn g" id="dref" style="margin:0">↻ Atualizar</button></div>
+<div id="diskr" class="mu" style="margin-top:8px"></div></div>
+
+<div class="card" id="w5"><h3 style="margin-top:0">5. Confirmar</h3>
+<p style="margin-top:0">⚠ <b>Todo o conteúdo do pendrive será apagado.</b> Para confirmar, digite <b>APAGAR</b>:</p>
+<input id="conf" autocomplete="off" placeholder="APAGAR" style="max-width:220px">
+<div><button class="btn" id="go2" disabled>💾 Criar pendrive</button><span id="why" class="mu" style="margin-left:8px"></span></div></div>
+
+<div class="card" id="w6" style="display:none"><h3 style="margin-top:0">6. Criando o pendrive</h3>
+<ol id="jsteps" class="jst"></ol>
+<div class="bar"><i id="jbar"></i></div>
+<div id="jmsg"></div>
+<pre id="jlog" style="max-height:160px;overflow:auto"></pre>
+<button class="btn g" id="jcancel">Cancelar</button><button class="btn g" id="jlogs">Abrir pasta de logs</button><button class="btn g" id="jagain" style="display:none">Criar outro</button></div>
+
+<div class="card" id="w7" style="display:none"><h3 style="margin-top:0">7. Próximos passos</h3>
+<ol>
+<li><b>Configure a BIOS:</b> desative CSM e Secure Boot; ative Above 4G Decoding e XHCI Hand-off; desative VT-d (ou use DisableIoMapper) e CFG Lock, se existir. Os nomes variam por fabricante.</li>
+<li><b>Ligue o cabo de rede.</b> O instalador baixa o macOS pela internet; o Wi-Fi normalmente não funciona nele.</li>
+<li><b>Dê boot pelo pendrive</b> no menu de boot: ASUS F8 · Gigabyte F12 · MSI F11 · ASRock F11 · Dell F12 · Lenovo F12 · HP F9.</li>
+<li>No OpenCore escolha <b>macOS Base System</b>. Em Utilitário de Disco, apague o SSD de destino como <b>APFS / Mapa de Partição GUID</b> e depois <b>Reinstalar o macOS</b>.</li>
+<li>Depois de instalar, copie a EFI do pendrive para o SSD, faça o <a href="#usb" onclick="show('usb')">mapeamento USB</a> e gere um SMBIOS único.</li>
+</ol>
+<details><summary><b>Travou? Erros mais comuns</b></summary><ul>
+<li><b>Para em EndRandomSeed ou EXITBS:START:</b> quirks de Booter ou CFG Lock. Ative AppleXcpmCfgLock.</li>
+<li><b>Buffer Too Small / Memory pool allocation failure:</b> ative Above 4G Decoding e desative CSM.</li>
+<li><b>Waiting for Root Device / sinal de proibido:</b> problema de USB. Use uma porta USB 2.0 e revise o mapeamento.</li>
+<li><b>This version of Mac OS X is not supported:</b> SMBIOS antigo demais para a versão do macOS.</li>
+<li><b>Tela preta com GPU AMD:</b> adicione o boot-arg <code>agdpmod=pikera</code>.</li>
+</ul><p class="mu">Mais em <a href="https://dortania.github.io/OpenCore-Install-Guide/troubleshooting/troubleshooting.html" target="_blank" rel="noopener">Dortania: Troubleshooting</a>.</p></details>
+</div>
+</div>
+<p class="mu">Importante: o HackCheck orquestra ferramentas que já existem (OpenCore, OpCore Simplify). O resultado não é garantido: cada PC exige testes e ajustes.</p>
 </section>
 
 <section id="docs">
@@ -139,7 +197,8 @@ document.getElementById('issues').innerHTML='<b>Pontos de atenção</b>'+(is.len
 var g={};a.it.forEach(function(x){(g[x.c]=g[x.c]||[]).push(x)});
 document.getElementById('hwt').innerHTML='<table><tr><th>Categoria</th><th>Dispositivo</th></tr>'+Object.keys(g).map(function(k){return '<tr><td><b>'+esc(k)+'</b></td><td>'+g[k].map(function(x){return esc(x.n)}).join('<br>')+'</td></tr>'}).join('')+'</table>';
 document.getElementById('ct').innerHTML='<table><tr><th>Categoria</th><th>Dispositivo</th><th>Status</th><th>Observação</th></tr>'+a.it.map(function(x){return '<tr><td>'+esc(x.c)+'</td><td>'+esc(x.n)+'</td><td><span class="b '+x.s+'">'+LB[x.s]+'</span></td><td>'+esc(x.t)+'</td></tr>'}).join('')+'</table>'}
-function run(d,demo){render(analyze(d),demo)}
+var LAST=null;
+function run(d,demo){LAST={d:d,a:analyze(d),demo:demo};render(LAST.a,demo);if(desk)wizInit()}
 var ST=[
 ['Confirme a aprovação','Use o Scanner e confirme que o veredito é aprovado. Tenha em mãos um pendrive de 16 GB ou mais (USB 3) e um segundo computador com Windows e internet.',''],
 ['Baixe o OpCore Simplify','Requer Python 3 instalado.','git clone https://github.com/lzhoang2801/OpCore-Simplify'],
@@ -180,9 +239,76 @@ window.pywebview.api.scan().then(function(r){b.disabled=false;
 if(!r.ok){st.textContent='';document.getElementById('err').textContent='Falha no scan: '+r.error;
 document.getElementById('verd').innerHTML='<div class="ban bad">Não foi possível ler o hardware<small>'+esc(r.error)+'</small></div>';return}
 st.textContent='Concluído.';document.getElementById('inp').value=JSON.stringify(r.data);run(r.data,false);show('painel')})}
+// ---------- Assistente de criação do pendrive (modo desktop) ----------
+var W={ver:null,efi:null,efiOk:false,disks:[],disk:null,job:null,timer:null};
+function $(i){return document.getElementById(i)}
+function api(){return window.pywebview.api}
+function wizInit(){if(!LAST)return;var a=LAST.a,pre=[],ok=true;
+function li(s,t){pre.push('<li>'+({ok:'✅',warn:'⚠️',bad:'❌'}[s])+' '+t+'</li>');if(s=='bad')ok=false}
+if(LAST.demo)li('bad','Faça o scan deste PC na aba Scanner (o painel está com dados de exemplo).');
+else li(a.v=='bad'?'bad':a.v=='warn'?'warn':'ok','Hardware: '+(a.v=='bad'?'reprovado ('+esc(a.bl.join(' '))+')':a.v=='warn'?'aprovado com ressalvas':'aprovado'));
+if(!LAST.demo)li(a.eth.length?'ok':'bad',a.eth.length?'Ethernet compatível: '+esc(a.eth[0].n):'Nenhuma Ethernet compatível. O instalador criado no Windows baixa o macOS pela internet e precisa de cabo de rede.');
+if(LAST.d.laptop)li('warn','Notebook: espere ajustes extras depois da instalação.');
+li('ok','Instalador: recovery oficial baixado direto da Apple (~1 GB).');
+$('pre').innerHTML=pre.join('');W.preOk=ok;
+// Versões permitidas pelo hardware; Sequoia recomendado.
+var mx=a.mx<0?T:a.mx,rec=Math.min(mx,SEQ),h='';
+if(W.ver==null||W.ver>mx)W.ver=rec;
+for(var i=mx;i>=Math.max(0,mx-4);i--)h+='<label class="'+(i==W.ver?'on':'')+'"><input type="radio" name="ver" value="'+i+'"'+(i==W.ver?' checked':'')+'><div><b>'+V[i]+'</b>'+(i==rec?' <span class="b ok">Recomendado</span>':'')+(i==T?' <span class="b warn">Último para PCs</span>':'')+'</div></label>';
+$('vlist').innerHTML=h;
+$('vlist').onchange=function(e){W.ver=+e.target.value;wizInit()};
+$('tahoe').innerHTML=W.ver==T&&a.tl.length?'<div class="note warn"><b>No Tahoe, com o seu hardware:</b><ul>'+a.tl.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ul></div>':'';
+wizCheck()}
+function efiShow(r){var h='';
+if(r.errors&&r.errors.length)h+='<div class="note bad"><b>EFI inválida:</b><ul>'+r.errors.map(function(e){return '<li>'+esc(e)+'</li>'}).join('')+'</ul></div>';
+if(r.warnings&&r.warnings.length)h+='<div class="note warn"><b>Atenção:</b><ul>'+r.warnings.map(function(e){return '<li>'+esc(e)+'</li>'}).join('')+'</ul></div>';
+if(r.ok)h+='<div class="note ok">EFI válida'+(r.kexts&&r.kexts.length?': '+r.kexts.length+' kexts ('+esc(r.kexts.slice(0,8).join(', '))+(r.kexts.length>8?'...':'')+')':'')+'</div>';
+$('efir').innerHTML=h}
+function loadDisks(){$('disk').innerHTML='<option value="">Procurando pendrives...</option>';
+api().list_disks().then(function(r){W.disks=r.ok?r.disks:[];var h='';
+if(!r.ok)h='<option value="">Erro: '+esc(r.error)+'</option>';
+else if(!W.disks.length)h='<option value="">Nenhum pendrive encontrado. Conecte um e clique em Atualizar.</option>';
+else{h='<option value="">Selecione o pendrive...</option>';W.disks.forEach(function(d,i){
+var vol=d.volumes.map(function(v){return v.letter+':'+(v.label?' '+v.label:'')}).join(', ');
+h+='<option value="'+i+'"'+(d.blocked?' disabled':'')+'>'+esc(d.name)+' · '+d.gb.toLocaleString('pt-BR')+' GB'+(vol?' · '+esc(vol):'')+(d.blocked?' ('+esc(d.blocked)+')':'')+'</option>'})}
+$('disk').innerHTML=h;
+var keep=W.disk?W.disks.findIndex(function(d){return d.uid==W.disk.uid&&!d.blocked}):-1;
+if(keep>=0){$('disk').value=keep}else W.disk=null;
+diskInfo();wizCheck()})}
+function diskInfo(){var d=W.disk;
+$('diskr').innerHTML=d?'Disco '+d.number+' · '+esc(d.name)+' · '+d.gb.toLocaleString('pt-BR')+' GB · '+esc(d.style)+(d.warning?'<div class="note warn">'+esc(d.warning)+'</div>':''):'Apenas discos USB aparecem aqui. O disco do Windows nunca é listado.'}
+function wizCheck(){var why=!W.preOk?'Resolva a pré-checagem.':!W.efiOk?'Escolha uma EFI válida.':!W.disk?'Escolha o pendrive.':$('conf').value.trim().toUpperCase()!='APAGAR'?'Digite APAGAR para confirmar.':'';
+$('go2').disabled=!!why||!!W.job;$('why').textContent=W.job?'':why}
+function jobPoll(){api().job_status(W.job).then(function(s){if(!s)return;
+var IC={pending:'○',running:'⏳',done:'✅',error:'❌',skipped:'➖'},tot=0;
+$('jsteps').innerHTML=s.steps.map(function(x){tot+=x.pct;return '<li class="'+x.status+'"><span class="ic">'+IC[x.status]+'</span><span>'+esc(x.label)+(x.status=='running'&&x.pct?' ('+x.pct+'%)':'')+'</span></li>'}).join('');
+$('jbar').style.width=(tot/s.steps.length)+'%';
+$('jlog').textContent=s.log.join('\n');$('jlog').scrollTop=1e9;
+$('jcancel').style.display=s.status=='running'&&s.cancellable?'':'none';
+if(s.status!='running'){clearInterval(W.timer);W.job=null;$('jagain').style.display='';
+$('jmsg').innerHTML='<div class="note '+(s.status=='done'?'ok':s.status=='cancelled'?'warn':'bad')+'">'+esc(s.message)+'</div>';
+if(s.status=='done'){$('w7').style.display='';$('w7').scrollIntoView({behavior:'smooth'})}
+wizCheck()}})}
+function wizStart(){var d=W.disk;
+$('w6').style.display='';$('w7').style.display='none';$('jmsg').innerHTML='';$('jagain').style.display='none';
+api().create_usb({version:W.ver,efi:W.efi,disk:{number:d.number,uid:d.uid,size:d.size},net:LAST.d.net||[]}).then(function(id){
+W.job=id;$('conf').value='';wizCheck();W.timer=setInterval(jobPoll,500);jobPoll();$('w6').scrollIntoView({behavior:'smooth'})})}
+function wizBind(){
+$('efib').onclick=function(){api().choose_efi().then(function(p){if(!p)return;W.efi=p;$('efip').textContent=p;
+api().validate_efi(p,LAST?LAST.d.net:[]).then(function(r){W.efiOk=!!r.ok;efiShow(r);wizCheck()})})};
+$('dref').onclick=loadDisks;
+$('disk').onchange=function(){W.disk=this.value===''?null:W.disks[+this.value];diskInfo();wizCheck()};
+$('conf').oninput=wizCheck;
+$('go2').onclick=wizStart;
+$('jcancel').onclick=function(){api().cancel_job(W.job)};
+$('jlogs').onclick=function(){api().open_logs()};
+$('jagain').onclick=function(){$('w6').style.display='none';$('w7').style.display='none';loadDisks()};
+document.querySelector('nav button[data-t="pen"]').addEventListener('click',function(){if(!W.job)loadDisks()})}
+
 var desk=false;
 function initDesk(){if(desk||!window.pywebview||!window.pywebview.api||!window.pywebview.api.scan)return;desk=true;
 document.getElementById('deskscan').style.display='';document.getElementById('webscan').style.display='none';
+$('penweb').style.display='none';$('pendesk').style.display='';wizBind();wizInit();loadDisks();
 document.getElementById('scan').onclick=deskScan;
 document.querySelector('nav h1 small').textContent='Desktop · v0.1';deskScan()}
 window.addEventListener('pywebviewready',initDesk);

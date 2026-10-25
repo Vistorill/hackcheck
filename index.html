@@ -127,10 +127,11 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 <tr><th>Componente</th><th>Funciona bem</th><th>Com ajustes</th><th>Não funciona</th></tr>
 <tr><td><b>CPU Intel</b></td><td>6ª a 10ª geração</td><td>2ª a 4ª, 11ª a 14ª geração</td><td>Core Ultra</td></tr>
 <tr><td><b>CPU AMD</b></td><td>—</td><td>Ryzen e Threadripper (patches)</td><td>FX, Athlon, APUs como GPU</td></tr>
-<tr><td><b>GPU AMD</b></td><td>RX 470–590, RX 5000, RX 6600–6900, Vega</td><td>RX 550</td><td>RX 6400/6500, RX 7000+</td></tr>
+<tr><td><b>GPU AMD</b></td><td>RX 470–590, RX 5000, RX 6600/6800/6900, Vega</td><td>RX 550, RX 6650 XT/6950 XT (spoof), RX 6700 (NootRX)</td><td>RX 6400/6500, RX 7000/9000</td></tr>
 <tr><td><b>GPU NVIDIA</b></td><td>—</td><td>Kepler (GT/GTX 600–700) até Big Sur</td><td>GTX 16xx, RTX</td></tr>
 <tr><td><b>GPU Intel</b></td><td>HD 530/630, UHD 6xx</td><td>Iris Plus (Ice Lake)</td><td>UHD 7xx, Iris Xe, Arc</td></tr>
-<tr><td><b>Wi-Fi</b></td><td>Broadcom (BCM94360, Fenvi)</td><td>Intel (itlwm)</td><td>Realtek, MediaTek</td></tr>
+<tr><td><b>Wi-Fi</b></td><td>—</td><td>Broadcom BCM94360/Fenvi (patch no Sequoia, experimental no Tahoe), Intel (itlwm)</td><td>Realtek, MediaTek, adaptadores USB</td></tr>
+<tr><td><b>Áudio</b></td><td>Realtek ALC até o Sequoia</td><td>—</td><td>Saída analógica no Tahoe (AppleHDA removido)</td></tr>
 </table></div>
 </div></section>
 
@@ -163,6 +164,7 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 <details><summary>O que é um Hackintosh?</summary><p>É um PC comum rodando o macOS. Isso é possível com o OpenCore, um bootloader que faz o hardware do PC se parecer com o de um Mac.</p></details>
 <details><summary>O HackCheck garante que a instalação vai funcionar?</summary><p>Não. Ele aponta a compatibilidade com base em regras da comunidade e automatiza etapas, mas cada PC pode exigir testes e ajustes. Confirme sempre no guia Dortania.</p></details>
 <details><summary>Qual é a última versão do macOS para PCs?</summary><p>O macOS 26 Tahoe é o último compatível com processadores Intel. As versões seguintes exigem Apple Silicon, então não rodam em Hackintosh.</p></details>
+<details><summary>Devo instalar o Tahoe ou o Sequoia?</summary><p>Para a maioria, o Sequoia 15. No Tahoe 26 a Apple removeu o driver de áudio usado nos PCs (sem som no fone e nas caixas) e o Wi-Fi Broadcom ficou experimental. O HackCheck recomenda o Sequoia e mostra o que você perderia no Tahoe com o seu hardware.</p></details>
 <details><summary>Meus dados são enviados para algum servidor?</summary><p>Não. A verificação do site roda no seu navegador, e o programa analisa o hardware localmente. Nada é enviado sem você pedir.</p></details>
 <details><summary>Notebook funciona?</summary><p>Às vezes, mas é bem mais difícil: Wi-Fi, trackpad, bateria e tela costumam exigir ajustes extras. Desktops são o caminho mais seguro.</p></details>
 <details><summary>É legal?</summary><p>O contrato de licença da Apple restringe o macOS a hardware da Apple. O HackCheck é um projeto educacional, sem vínculo com a Apple, e nunca distribui o macOS: o instalador é baixado direto dos servidores da Apple. Use por sua conta e risco.</p></details>

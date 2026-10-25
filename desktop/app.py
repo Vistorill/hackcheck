@@ -5,9 +5,13 @@ from pathlib import Path
 
 import webview
 
+import creator
+import efi
+import recovery
 import scanner
+import usbdrive as usb
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 def base_dir():
@@ -28,6 +32,38 @@ class Api:
 
     def info(self):
         return {"version": VERSION, "platform": sys.platform}
+
+    # ---- criação do pendrive ----
+    def list_disks(self):
+        try:
+            return {"ok": True, "disks": usb.list_disks()}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def recovery_cached(self, version):
+        return bool(recovery.cached(int(version), creator.data_dir() / "cache"))
+
+    def choose_efi(self):
+        r = webview.windows[0].create_file_dialog(webview.FileDialog.FOLDER)
+        return r[0] if r else None
+
+    def validate_efi(self, path, net=None):
+        try:
+            return efi.validate(path, net)
+        except Exception as e:
+            return {"ok": False, "errors": [str(e)], "warnings": []}
+
+    def create_usb(self, params):
+        return creator.start(params)
+
+    def job_status(self, job_id):
+        return creator.status(job_id)
+
+    def cancel_job(self, job_id):
+        return creator.cancel(job_id)
+
+    def open_logs(self):
+        os.startfile(str(creator.data_dir() / "logs"))
 
 
 def main():
