@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 ZIP_URL = "https://github.com/lzhoang2801/OpCore-Simplify/archive/refs/heads/main.zip"
+SHA_URL = "https://api.github.com/repos/lzhoang2801/OpCore-Simplify/commits/main"
 CREATE_NEW_CONSOLE = 0x00000010
 
 
@@ -54,6 +55,16 @@ class Generator:
         self.tools.mkdir(parents=True, exist_ok=True)
         os.replace(tmp / "OpCore-Simplify-main", self.dir)
         shutil.rmtree(tmp, ignore_errors=True)
+        # O ZIP não traz o sha_version.txt; sem ele o atualizador do OpCore Simplify
+        # acha que está desatualizado e tenta baixar tudo de novo.
+        try:
+            req = Request(SHA_URL, headers={"User-Agent": "HackCheck", "Accept": "application/vnd.github.sha"})
+            with urlopen(req, timeout=30) as r:
+                sha = r.read().decode().strip()
+            if len(sha) == 40:
+                (self.dir / "sha_version.txt").write_text(sha, "utf-8")
+        except Exception:
+            pass
 
     def _run(self):
         try:
