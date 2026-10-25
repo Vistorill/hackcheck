@@ -62,7 +62,9 @@ textarea{width:100%;min-height:130px;background:var(--cd);color:var(--tx);border
 
 <section id="scanner">
 <h2>Scanner de hardware</h2>
-<div class="card"><p>O navegador não consegue ler o hardware do PC. Rode o script abaixo no <b>PowerShell</b> do Windows: ele copia um JSON para a área de transferência. Cole o resultado na caixa e clique em Analisar.</p>
+<div class="card" id="deskscan" style="display:none"><p>O HackCheck lê o hardware deste PC diretamente. Nada é enviado para a internet.</p>
+<button class="btn" id="scan">Escanear este PC</button><span id="scst" class="mu" style="margin-left:8px"></span></div>
+<div class="card" id="webscan"><p>O navegador não consegue ler o hardware do PC. Rode o script abaixo no <b>PowerShell</b> do Windows: ele copia um JSON para a área de transferência. Cole o resultado na caixa e clique em Analisar.</p>
 <pre id="ps">$o=[ordered]@{cpu=(Get-CimInstance Win32_Processor|Select -First 1).Name;gpu=@(Get-CimInstance Win32_VideoController|%{$_.Name});board=(Get-CimInstance Win32_BaseBoard).Product;ram=[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB);net=@(Get-CimInstance Win32_NetworkAdapter|?{$_.PhysicalAdapter}|%{$_.Name});audio=@(Get-CimInstance Win32_SoundDevice|%{$_.Name});disk=@(Get-CimInstance Win32_DiskDrive|%{$_.Model})}
 $o|ConvertTo-Json -Compress|Set-Clipboard</pre>
 <button class="btn g" id="cp">Copiar script</button></div>
@@ -170,8 +172,23 @@ document.getElementById('go').onclick=function(){var e=document.getElementById('
 try{var d=JSON.parse(firstJson(document.getElementById('inp').value));if(!d||typeof d!='object')throw 0;run(d,false);show('painel')}catch(x){e.textContent='Não encontrei um JSON válido. Rode o script do scanner de novo e cole só o resultado (Ctrl+V).'}};
 document.getElementById('cp').onclick=function(){var t=document.getElementById('ps').textContent;
 try{navigator.clipboard.writeText(t).then(function(){document.getElementById('cp').textContent='Copiado!'})}catch(e){var r=document.createRange();r.selectNode(document.getElementById('ps'));getSelection().removeAllRanges();getSelection().addRange(r)}};
+// Modo desktop: o app (pywebview) expõe window.pywebview.api.scan().
+function deskScan(){var b=document.getElementById('scan'),st=document.getElementById('scst');
+b.disabled=true;st.textContent='Escaneando o hardware...';
+document.getElementById('verd').innerHTML='<div class="ban warn">Escaneando o hardware deste PC...<small>Isso leva alguns segundos.</small></div>';
+window.pywebview.api.scan().then(function(r){b.disabled=false;
+if(!r.ok){st.textContent='';document.getElementById('err').textContent='Falha no scan: '+r.error;
+document.getElementById('verd').innerHTML='<div class="ban bad">Não foi possível ler o hardware<small>'+esc(r.error)+'</small></div>';return}
+st.textContent='Concluído.';document.getElementById('inp').value=JSON.stringify(r.data);run(r.data,false);show('painel')})}
+var desk=false;
+function initDesk(){if(desk||!window.pywebview||!window.pywebview.api||!window.pywebview.api.scan)return;desk=true;
+document.getElementById('deskscan').style.display='';document.getElementById('webscan').style.display='none';
+document.getElementById('scan').onclick=deskScan;
+document.querySelector('nav h1 small').textContent='Desktop · v0.1';deskScan()}
+window.addEventListener('pywebviewready',initDesk);
 run(SA,true);
 show((location.hash||'').slice(1)||'painel');
+initDesk();
 </script>
 </body>
 </html>

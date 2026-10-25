@@ -68,6 +68,7 @@ add('CPU',d.cpu||'(não detectada)',cpuR(d.cpu));
 (d.audio||[]).forEach(function(x){add('Áudio',x,audR(x))});
 (d.disk||[]).forEach(function(x){add('Disco',x,dskR(x))});
 if(d.ram!=null)add('Memória',d.ram+' GB',+d.ram>=8?R('ok','Memória suficiente.'):R('warn','Recomendado ao menos 8 GB.'));
+if(d.laptop)it.push({c:'Tipo',n:'Notebook',s:'warn',t:'Notebooks exigem ajustes extras (trackpad, bateria, tela, Wi-Fi). Desktops são mais simples.',m:T,u:true});
 if(d.board)it.push({c:'Placa-mãe',n:d.board,s:'info',t:'Verifique atualização de BIOS e opções (CSM, Secure Boot).',m:T,u:true});
 var cpu=it.filter(function(x){return x.c=='CPU'})[0],gp=it.filter(function(x){return x.c=='GPU'&&x.u}),bl=[];
 if(!cpu||cpu.s=='bad')bl.push('CPU incompatível.');

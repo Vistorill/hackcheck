@@ -1,0 +1,37 @@
+# Gera o HackCheck.exe e publica no GitHub Releases ao enviar uma tag "v*" (ex.: v0.1.0).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Build
+        shell: pwsh
+        run: ./desktop/build.ps1
+
+      - name: Publicar release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: desktop/dist/HackCheck.exe
+          generate_release_notes: true
+
+      - name: Guardar artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackCheck-windows
+          path: desktop/dist/HackCheck.exe

@@ -19,13 +19,36 @@ hackcheck/
 ├─ index.html            # landing page (GitHub Pages)
 ├─ dashboard/index.html  # dashboard web com análise completa
 ├─ assets/rules.js       # motor de regras, compartilhado
+├─ desktop/              # programa para Windows (Python + pywebview)
+│  ├─ app.py
+│  ├─ scanner/           # coleta de hardware
+│  └─ build.ps1          # gera o HackCheck.exe
 ├─ LICENSE
 └─ CONTRIBUTING.md
 ```
 
-Planejado: `rules/*.json` (regras versionadas), `scanner/` (coleta de hardware) e `desktop/` (programa em Python + pywebview).
+Planejado: `rules/*.json` (regras versionadas) e scanners para Linux e macOS.
 
-## Rodar localmente
+## Programa para Windows (desktop/)
+
+App em Python 3.9 + [pywebview](https://pywebview.flowrl.com/) que abre a dashboard numa janela e lê o hardware automaticamente.
+
+```bash
+cd desktop
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+.venv\Scripts\python app.py
+```
+
+Gerar o executável (`desktop\dist\HackCheck.exe`):
+
+```bash
+powershell -ExecutionPolicy Bypass -File desktop\build.ps1
+```
+
+Ao enviar uma tag `v*` (ex.: `v0.1.0`), o GitHub Actions gera o `.exe` e publica em **Releases**.
+
+## Rodar o site localmente
 
 São só arquivos estáticos. Abra o `index.html` no navegador ou sirva a pasta:
 
