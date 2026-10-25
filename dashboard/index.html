@@ -41,6 +41,7 @@ select,input{background:var(--cd);color:var(--tx);border:1px solid var(--bd);bor
 .ck{list-style:none;padding:0}.ck li{margin:4px 0}
 .jst{list-style:none;padding:0;margin:0 0 8px}.jst li{display:flex;gap:8px;padding:3px 0}.jst .ic{width:20px;text-align:center}
 .jst li.running{font-weight:600}.jst li.pending{color:var(--mu)}
+#pendesk,#pendesk *{user-select:text;-webkit-user-select:text}
 .note{padding:10px;border-radius:8px;margin-top:8px}.note.warn{background:var(--wab);color:var(--wa)}.note.bad{background:var(--bab);color:var(--ba)}.note.ok{background:var(--okb);color:var(--ok)}
 @media (max-width:720px){.app{grid-template-columns:1fr}nav{display:flex;overflow-x:auto;gap:4px;border-right:0;border-bottom:1px solid var(--bd)}nav h1{display:none}nav button{white-space:nowrap;width:auto}}
 </style>
@@ -298,7 +299,10 @@ if(r.drivers&&r.drivers.length){var DS={ok:['ok','Incluído'],missing:['bad','Fa
 h+='<h3>Drivers para o seu hardware</h3><div class="tw"><table><tr><th>Tipo</th><th>Driver</th><th>Status</th><th>Por quê</th></tr>'+r.drivers.map(function(d){var s=DS[d.status];
 return '<tr><td>'+esc(d.kind)+'</td><td><b>'+esc(d.name)+'</b></td><td><span class="b '+s[0]+'">'+s[1]+'</span></td><td class="mu">'+esc(d.reason)+'</td></tr>'}).join('')+'</table></div>'}
 if(r.kexts&&r.kexts.length)h+='<details><summary class="mu">Kexts na EFI ('+r.kexts.length+')</summary><p class="mu">'+esc(r.kexts.join(' · '))+'</p></details>';
-$('efir').innerHTML=h}
+if(r.report)h+='<button class="btn g" id="efcopy">📋 Copiar relatório da EFI</button><button class="btn g" id="eflogs">Abrir pasta de logs</button>';
+$('efir').innerHTML=h;
+if(r.report){$('efcopy').onclick=function(){var b=this;api().copy_text(r.report).then(function(){b.textContent='✅ Copiado! Cole com Ctrl+V'})};
+$('eflogs').onclick=function(){api().open_logs()}}}
 // Revalida a EFI com a versão escolhida e o hardware escaneado.
 function efiCheck(){if(!W.efi)return;
 api().validate_efi(W.efi,null,W.ver,LAST&&!LAST.demo?LAST.d:{}).then(function(r){W.efiOk=!!r.ok;efiShow(r);wizCheck()})}

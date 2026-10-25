@@ -1,6 +1,8 @@
 """HackCheck Desktop: abre a dashboard numa janela nativa e faz o scan do hardware."""
 import os
+import subprocess
 import sys
+import time
 import webbrowser
 from pathlib import Path
 
@@ -13,7 +15,7 @@ import scanner
 import usbdrive as usb
 from efi.opcore import Generator
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 GEN = Generator(creator.data_dir() / "tools")
 
 
@@ -52,9 +54,35 @@ class Api:
 
     def validate_efi(self, path, net=None, version=None, hw=None):
         try:
-            return efi.validate(path, net, version, hw)
+            r = efi.validate(path, net, version, hw)
         except Exception as e:
-            return {"ok": False, "errors": [str(e)], "warnings": []}
+            r = {"ok": False, "errors": [str(e)], "warnings": [], "drivers": [], "kexts": [], "smbios": ""}
+        self._log_validation(path, version, r)
+        return r
+
+    def _log_validation(self, path, version, r):
+        lines = ["EFI: " + str(path),
+                 "macOS: " + (recovery.VERSIONS[int(version)][0] if version is not None else "?"),
+                 "SMBIOS: " + r.get("smbios", ""),
+                 "Resultado: " + ("VÁLIDA" if r["ok"] else "INVÁLIDA")]
+        lines += ["ERRO: " + e for e in r["errors"]]
+        lines += ["AVISO: " + w for w in r["warnings"]]
+        lines += ["Driver [{}] {}: {}".format(d["status"], d["name"], d["reason"]) for d in r.get("drivers", [])]
+        lines += ["Kexts: " + ", ".join(r.get("kexts", []))]
+        r["report"] = "\n".join(lines)
+        with open(creator.data_dir() / "logs" / "validacao-efi.log", "a", encoding="utf-8") as f:
+            f.write(time.strftime("==== %Y-%m-%d %H:%M:%S ====\n") + r["report"] + "\n\n")
+
+    def copy_text(self, text):
+        # Área de transferência do Windows (a WebView não permite copiar de páginas file://).
+        # Passa por arquivo UTF-8: pela entrada padrão o PowerShell 5.1 estraga os acentos.
+        tmp = creator.data_dir() / "clipboard.txt"
+        tmp.write_text(text, encoding="utf-8")
+        subprocess.run(["powershell", "-NoProfile", "-Command",
+                        "Get-Content -Raw -Encoding UTF8 -LiteralPath '{}' | Set-Clipboard".format(tmp)],
+                       creationflags=0x08000000)
+        tmp.unlink()
+        return True
 
     def efi_generate(self):
         return GEN.start()

@@ -30,7 +30,8 @@ SMBIOS_SUGGEST = {
 ETH_KEXTS = [
     (re.compile(r"I22[56]", re.I), ["AppleIGC"]),
     (re.compile(r"I21[0-9]|I219|82579|Intel.*Ethernet", re.I), ["IntelMausi", "SmallTreeIntel82576"]),
-    (re.compile(r"8125|8126|2\.5G", re.I), ["LucyRTL8125Ethernet"]),
+    # RTL812xLucy é o sucessor do LucyRTL8125Ethernet (mesmo autor, Mieze; 2026).
+    (re.compile(r"8125|8126|2\.5G", re.I), ["RTL812xLucy", "LucyRTL8125Ethernet"]),
     (re.compile(r"8111|8168|RTL81|Realtek.*Gigabit|Realtek PCIe GbE", re.I), ["RealtekRTL8111"]),
     (re.compile(r"Atheros|Killer E2", re.I), ["AtherosE2200Ethernet"]),
     (re.compile(r"Aquantia|AQC", re.I), []),  # suporte nativo
