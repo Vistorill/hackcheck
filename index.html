@@ -69,28 +69,29 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 
 <header><div class="w">
 <a class="logo" href="#">🖥️ HackCheck</a>
-<nav><a href="#como">Como funciona</a><a href="#verificar">Verificar</a><a href="#recursos">Recursos</a><a href="#roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>
+<nav><a href="#como">Como funciona</a><a href="#verificar">Verificar</a><a href="#recursos">Recursos</a><a href="#pendrive">Pendrive</a><a href="#download">Download</a><a href="#faq">FAQ</a></nav>
 <a class="btn sm g js-repo" href="#">GitHub</a>
 </div></header>
 
 <div class="hero"><div class="w">
-<span class="tag">Open source · v0.1 em desenvolvimento</span>
-<h1>Descubra se o seu PC roda macOS</h1>
-<p>O HackCheck analisa o seu hardware, mostra qual a versão máxima do macOS compatível e guia você até o pendrive de instalação com OpenCore, passo a passo.</p>
+<span class="tag">Open source · v0.3.2 beta para Windows</span>
+<h1>Do "será que roda?" ao pendrive do macOS pronto</h1>
+<p>O HackCheck lê o hardware do seu PC, diz qual macOS ele suporta, ajuda a gerar a EFI do OpenCore certa para ele, confere os drivers e cria o pendrive de instalação com o macOS baixado direto da Apple.</p>
 <div class="cta">
-<a class="btn" href="#verificar">Verificar agora, grátis</a>
-<a class="btn g" href="#download">Baixar para Windows</a>
+<a class="btn js-dl" href="#download">⬇ Baixar para Windows</a>
+<a class="btn g" href="#verificar">Verificar online, grátis</a>
 </div>
-<div class="note">Sem cadastro. Seus dados de hardware não saem do seu computador.</div>
+<div class="note">Gratuito e open source · Windows 10/11 · Seus dados de hardware não saem do seu computador.</div>
 </div></div>
 
 <section id="como"><div class="w">
 <h2>Como funciona</h2>
-<p class="lead">Três etapas, do "será que dá?" até o pendrive pronto.</p>
+<p class="lead">Quatro etapas, do "será que dá?" até o pendrive pronto.</p>
 <div class="steps">
 <div class="card"><h3>Verifique online</h3><p>Digite sua CPU e sua placa de vídeo aqui no site e veja na hora se há chance de rodar o macOS.</p></div>
-<div class="card"><h3>Instale o HackCheck</h3><p>O programa para Windows lê todo o hardware automaticamente e gera um relatório completo: CPU, GPU, rede, áudio e discos.</p></div>
-<div class="card"><h3>Crie o pendrive</h3><p>Com o PC aprovado, o HackCheck gera a EFI, baixa o macOS direto da Apple e prepara o pendrive de instalação.</p></div>
+<div class="card"><h3>Abra o HackCheck</h3><p>O programa lê sozinho CPU, placa de vídeo, placa-mãe, memória, rede, áudio e discos, e mostra o veredito e o macOS máximo.</p></div>
+<div class="card"><h3>Gere a EFI</h3><p>Com um clique ele abre o OpCore Simplify com um guia na tela, detecta a EFI pronta e confere se tem todos os drivers do seu hardware.</p></div>
+<div class="card"><h3>Crie o pendrive</h3><p>Escolha o pendrive, confirme e pronto: ele baixa o macOS da Apple, formata, copia, confere a gravação e ejeta.</p></div>
 </div>
 </div></section>
 
@@ -111,12 +112,15 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 <h2>O que o HackCheck faz</h2>
 <p class="lead">Ele junta as melhores ferramentas da comunidade Hackintosh em um fluxo só, sem você precisar decifrar fóruns.</p>
 <div class="feat">
-<div class="card"><div class="ic">🔍</div><h3>Scanner automático</h3><p>Lê CPU, GPU, placa-mãe, memória, rede, áudio e discos, sem você digitar nada.</p></div>
+<div class="card"><div class="ic">🔍</div><h3>Scanner automático</h3><p>Lê CPU, GPU, placa-mãe, memória, rede, áudio e discos ao abrir, sem digitar nada. Detecta também se é notebook.</p></div>
 <div class="card"><div class="ic">✅</div><h3>Veredito claro</h3><p>Aprovado, aprovado com ressalvas ou reprovado, com o motivo de cada componente e o que trocar.</p></div>
-<div class="card"><div class="ic">🍎</div><h3>macOS máximo</h3><p>Mostra até qual versão o seu hardware chega, de High Sierra até o Tahoe 26.</p></div>
-<div class="card"><div class="ic">⚙️</div><h3>EFI automática</h3><p>Gera a pasta EFI do OpenCore com o OpCore Simplify, a partir do hardware detectado.</p></div>
-<div class="card"><div class="ic">💾</div><h3>Pendrive guiado</h3><p>Baixa o instalador oficial da Apple e prepara o pendrive, com confirmação dupla do disco.</p></div>
-<div class="card"><div class="ic">🔌</div><h3>Pós-instalação</h3><p>Guia de BIOS e mapeamento de portas USB com o USBToolBox.</p></div>
+<div class="card"><div class="ic">🍎</div><h3>Versão certa do macOS</h3><p>Mostra até onde o hardware chega e recomenda o Sequoia 15. Se escolher o Tahoe 26, avisa o que você perde com o seu hardware.</p></div>
+<div class="card"><div class="ic">⚙️</div><h3>EFI gerada para o seu PC</h3><p>Abre o OpCore Simplify com um guia passo a passo e detecta a EFI quando fica pronta. Também aceita uma EFI sua ou busca EFIs da comunidade para a sua placa.</p></div>
+<div class="card"><div class="ic">🧩</div><h3>Conferência de drivers</h3><p>Mostra quais drivers o seu hardware precisa (vídeo, áudio, rede, CPU, disco) e se a EFI tem cada um. Confere também se o SMBIOS é aceito pela versão do macOS.</p></div>
+<div class="card"><div class="ic">🍏</div><h3>macOS direto da Apple</h3><p>Baixa o recovery oficial dos servidores da Apple e confere a assinatura digital. Nada de imagens de terceiros.</p></div>
+<div class="card"><div class="ic">💾</div><h3>Pendrive seguro</h3><p>Lista só pendrives USB, nunca o disco do Windows. Pede confirmação, só apaga quando tudo está pronto e relê a gravação direto do pendrive.</p></div>
+<div class="card"><div class="ic">🛠️</div><h3>Próximos passos</h3><p>Checklist da BIOS, tecla de boot por fabricante, instalação e soluções para os erros mais comuns.</p></div>
+<div class="card"><div class="ic">📋</div><h3>Relatórios e logs</h3><p>Copie o relatório da EFI com um clique para pedir ajuda. Tudo fica registrado em logs.</p></div>
 </div>
 </div></section>
 
@@ -135,15 +139,37 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 </table></div>
 </div></section>
 
-<section id="download" class="dl"><div class="w">
+<section id="pendrive"><div class="w">
+<h2>O assistente do pendrive, em 7 passos</h2>
+<p class="lead">Tudo dentro do programa, na aba "Criar pendrive". O pendrive só é apagado no final, quando tudo já está pronto e conferido.</p>
+<div class="steps">
+<div class="card"><h3>Pré-checagem</h3><p>Hardware aprovado e placa de rede compatível, porque o instalador baixa o macOS pela internet.</p></div>
+<div class="card"><h3>Versão do macOS</h3><p>Só as versões que o seu PC suporta, com a recomendada já marcada.</p></div>
+<div class="card"><h3>EFI</h3><p>Gerar para este PC, usar uma sua ou procurar na comunidade. Sempre validada, com a tabela de drivers.</p></div>
+<div class="card"><h3>Pendrive</h3><p>Seletor só com discos USB, mostrando modelo, tamanho e letra.</p></div>
+<div class="card"><h3>Confirmação</h3><p>O botão só libera depois que você digita APAGAR.</p></div>
+<div class="card"><h3>Criação</h3><p>Baixa da Apple, formata em GPT + FAT32 (pede administrador só aqui), copia, confere e ejeta.</p></div>
+<div class="card"><h3>Próximos passos</h3><p>BIOS, boot pelo pendrive, instalação e o que fazer se travar.</p></div>
+</div>
+</div></section>
+
+<section id="download" class="dl alt"><div class="w">
 <div class="card">
 <h2>HackCheck para Windows</h2>
-<p class="lead" style="margin:0 auto 24px">O programa está em desenvolvimento. Acompanhe as versões no GitHub. Enquanto isso, a dashboard web já faz a análise completa com o script de scanner.</p>
+<p class="lead" style="margin:0 auto 24px">Versão beta 0.3.2. Um único arquivo .exe, sem instalação: baixe e abra.</p>
 <div class="cta">
-<a class="btn js-rel" href="#">Ver versões no GitHub</a>
-<a class="btn g" href="dashboard/">Abrir dashboard web</a>
+<a class="btn js-dl" href="#">⬇ Baixar HackCheck.exe</a>
+<a class="btn g js-rel" href="#">Todas as versões</a>
 </div>
-<div class="note">Windows 10 ou 11 · Pendrive de 16 GB ou mais · Gratuito (licença MIT)</div>
+<div class="note">Windows 10 ou 11 · ~10 MB · Gratuito e open source (MIT)</div>
+<div class="note" style="text-align:left;max-width:520px;margin:18px auto 0">
+<b>Você vai precisar de:</b><br>
+• Pendrive de 8 GB ou mais (será apagado)<br>
+• Cabo de rede no PC na hora de instalar o macOS<br>
+• Um SSD ou HD para o macOS (a instalação apaga o disco escolhido)<br><br>
+<b>Aviso do Windows:</b> por ser um programa novo e sem assinatura digital, o Windows pode mostrar "O Windows protegeu o computador". Clique em <b>Mais informações → Executar assim mesmo</b>. O código é aberto e o .exe é gerado pelo GitHub a partir dele.
+</div>
+<p class="note">Sem Windows por perto? A <a href="dashboard/">dashboard web</a> faz a análise com um script do PowerShell.</p>
 </div>
 </div></section>
 
@@ -151,10 +177,10 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 <h2>Roadmap</h2>
 <p class="lead">O projeto é construído em etapas, para cada versão já entregar algo útil.</p>
 <div class="road">
-<div class="card done"><b>✔ CONCLUÍDO</b><h3>Dashboard web</h3><p>Motor de regras, scanner via PowerShell e guia do pendrive.</p></div>
-<div class="card now"><b>● EM ANDAMENTO</b><h3>v0.1 · Scanner desktop</h3><p>Programa para Windows que lê o hardware e mostra o veredito.</p></div>
-<div class="card next"><b>PRÓXIMO</b><h3>v0.2 · Gerador de EFI</h3><p>Integração com o OpCore Simplify.</p></div>
-<div class="card next"><b>PRÓXIMO</b><h3>v0.3 · Criador de pendrive</h3><p>Download do macOS (gibMacOS) e preparo do pendrive.</p></div>
+<div class="card done"><b>✔ CONCLUÍDO</b><h3>v0.1 · Scanner desktop</h3><p>Programa para Windows que lê o hardware e mostra o veredito.</p></div>
+<div class="card done"><b>✔ CONCLUÍDO</b><h3>v0.2 · Criador de pendrive</h3><p>macOS direto da Apple, formatação segura, cópia e conferência.</p></div>
+<div class="card done"><b>✔ CONCLUÍDO</b><h3>v0.3 · EFI e drivers</h3><p>Geração guiada com o OpCore Simplify e conferência dos drivers do hardware.</p></div>
+<div class="card now"><b>● PRÓXIMO</b><h3>v0.4 · EFI em um clique</h3><p>Gerar a EFI sem a janela do OpCore Simplify e mapear USB dentro do programa.</p></div>
 <div class="card next"><b>FUTURO</b><h3>Comunidade</h3><p>Banco de EFIs que funcionaram, Linux, inglês e espanhol.</p></div>
 </div>
 </div></section>
@@ -165,6 +191,10 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 <details><summary>O HackCheck garante que a instalação vai funcionar?</summary><p>Não. Ele aponta a compatibilidade com base em regras da comunidade e automatiza etapas, mas cada PC pode exigir testes e ajustes. Confirme sempre no guia Dortania.</p></details>
 <details><summary>Qual é a última versão do macOS para PCs?</summary><p>O macOS 26 Tahoe é o último compatível com processadores Intel. As versões seguintes exigem Apple Silicon, então não rodam em Hackintosh.</p></details>
 <details><summary>Devo instalar o Tahoe ou o Sequoia?</summary><p>Para a maioria, o Sequoia 15. No Tahoe 26 a Apple removeu o driver de áudio usado nos PCs (sem som no fone e nas caixas) e o Wi-Fi Broadcom ficou experimental. O HackCheck recomenda o Sequoia e mostra o que você perderia no Tahoe com o seu hardware.</p></details>
+<details><summary>O que é a EFI e por que não existe um download pronto?</summary><p>A EFI é a pasta do OpenCore que faz o PC dar boot no macOS. Ela leva os drivers e as configurações da combinação exata do seu processador, placa-mãe, placa de vídeo, rede e áudio. Por isso ela é gerada para o seu PC: o HackCheck usa o OpCore Simplify para isso e depois confere se nada ficou faltando.</p></details>
+<details><summary>Preciso de cabo de rede?</summary><p>Sim. No Windows não dá para montar o instalador completo do macOS, então o pendrive leva o instalador online oficial da Apple, que baixa o sistema durante a instalação. O Wi-Fi quase nunca funciona no instalador.</p></details>
+<details><summary>Vou perder o meu Windows?</summary><p>A instalação do macOS apaga o disco escolhido, então use um SSD ou HD separado se quiser manter o Windows. Se o seu Windows estiver em modo Legacy, ele não inicia com o CSM desativado (exigido pelo OpenCore). Para voltar a ele, basta reativar o CSM na BIOS.</p></details>
+<details><summary>O Windows diz que o programa pode ser perigoso. É seguro?</summary><p>O aviso aparece porque o .exe não tem assinatura digital paga. O código é aberto no GitHub, e o executável é gerado automaticamente pelo GitHub Actions a partir dele. O HackCheck só pede administrador na hora de formatar o pendrive, e nunca mexe no disco do Windows.</p></details>
 <details><summary>Meus dados são enviados para algum servidor?</summary><p>Não. A verificação do site roda no seu navegador, e o programa analisa o hardware localmente. Nada é enviado sem você pedir.</p></details>
 <details><summary>Notebook funciona?</summary><p>Às vezes, mas é bem mais difícil: Wi-Fi, trackpad, bateria e tela costumam exigir ajustes extras. Desktops são o caminho mais seguro.</p></details>
 <details><summary>É legal?</summary><p>O contrato de licença da Apple restringe o macOS a hardware da Apple. O HackCheck é um projeto educacional, sem vínculo com a Apple, e nunca distribui o macOS: o instalador é baixado direto dos servidores da Apple. Use por sua conta e risco.</p></details>
@@ -182,6 +212,7 @@ footer .w{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-betwee
 var REPO='Vistorill/hackcheck';
 document.querySelectorAll('.js-repo').forEach(function(a){a.href='https://github.com/'+REPO});
 document.querySelectorAll('.js-rel').forEach(function(a){a.href='https://github.com/'+REPO+'/releases'});
+document.querySelectorAll('.js-dl').forEach(function(a){a.href='https://github.com/'+REPO+'/releases/latest/download/HackCheck.exe'});
 
 var LB={ok:'Compatível',warn:'Ressalvas',bad:'Incompatível'};
 document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();
