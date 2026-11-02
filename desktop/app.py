@@ -1,11 +1,14 @@
 """HackCheck Desktop: abre a dashboard numa janela nativa e faz o scan do hardware."""
 import os
+import ssl
 import subprocess
 import sys
 import time
+import urllib.request
 import webbrowser
 from pathlib import Path
 
+import certifi
 import webview
 
 import creator
@@ -15,7 +18,14 @@ import scanner
 import usbdrive as usb
 from efi.opcore import Generator
 
-VERSION = "0.3.2"
+# O Windows só baixa as raízes que faltam quando algum programa dele pede; o Python não
+# pede, e o download do GitHub falha com CERTIFICATE_VERIFY_FAILED. Somar as raízes do
+# certifi às do Windows resolve sem desligar a verificação.
+_ctx = ssl.create_default_context()
+_ctx.load_verify_locations(certifi.where())
+urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx)))
+
+VERSION = "0.3.3"
 GEN = Generator(creator.data_dir() / "tools")
 
 
