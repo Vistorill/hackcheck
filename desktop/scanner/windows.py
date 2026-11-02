@@ -13,6 +13,9 @@ $laptop=[bool]($ch|?{$_ -in 8,9,10,11,14,30,31,32}) -or [bool](Get-CimInstance W
 $o=[ordered]@{
  cpu=(Get-CimInstance Win32_Processor|Select -First 1).Name
  gpu=@(Get-CimInstance Win32_VideoController|%{$_.Name})
+ gpudev=@(Get-CimInstance Win32_VideoController|?{$_.PNPDeviceID -like 'PCI\*'}|%{[ordered]@{
+  name=$_.Name; id=$_.PNPDeviceID
+  path=@((Get-PnpDeviceProperty -InstanceId $_.PNPDeviceID -KeyName DEVPKEY_Device_LocationPaths).Data)[0]}})
  board=(Get-CimInstance Win32_BaseBoard).Product
  ram=[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB)
  net=@(Get-CimInstance Win32_NetworkAdapter|?{$_.PhysicalAdapter}|%{$_.Name})
@@ -39,7 +42,7 @@ def scan(timeout=60):
         err = proc.stderr.decode("utf-8", errors="replace").strip()
         raise RuntimeError("O PowerShell não retornou dados. " + err[:300])
     data = json.loads(out)
-    for k in ("gpu", "net", "audio", "disk"):
+    for k in ("gpu", "gpudev", "net", "audio", "disk"):
         v = data.get(k)
         data[k] = [x for x in (v if isinstance(v, list) else [v]) if x]
     return data

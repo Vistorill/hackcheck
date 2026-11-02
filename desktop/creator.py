@@ -109,6 +109,13 @@ class Job:
             for w in v["warnings"]:
                 self.log("Aviso: " + w)
             efi_root = Path(v["root"])
+            # Correções que faltam na EFI escolhida (ex.: spoof da GPU) vão só na cópia do
+            # pendrive: a pasta original do usuário não é alterada.
+            fixed_cfg = data_dir() / "config-pendrive.plist"
+            shutil.copyfile(efi_root / "OC" / "config.plist", fixed_cfg)
+            fixed = efi.fixes.apply_file(fixed_cfg, (p.get("hw") or {}).get("gpudev"))
+            for desc in fixed:
+                self.log("Ajuste automático na EFI do pendrive: " + desc)
             self.step(cur, "done", 100)
 
             cur = "disk"
@@ -133,7 +140,11 @@ class Job:
             dst = Path(letter + ":\\")
             files = [(f, dst / "com.apple.recovery.boot" / f.name) for f in rec.iterdir()
                      if f.suffix.lower() in (".dmg", ".chunklist")]
-            files += [(f, dst / "EFI" / f.relative_to(efi_root)) for f in efi_root.rglob("*") if f.is_file()]
+            for f in efi_root.rglob("*"):
+                if f.is_file():
+                    rel = f.relative_to(efi_root)
+                    src = fixed_cfg if fixed and rel.as_posix().lower() == "oc/config.plist" else f
+                    files.append((src, dst / "EFI" / rel))
             total = sum(f.stat().st_size for f, _ in files) or 1
             done = 0
             for src, out in files:

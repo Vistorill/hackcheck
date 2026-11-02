@@ -14,6 +14,8 @@ import zipfile
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from . import fixes
+
 ZIP_URL = "https://github.com/lzhoang2801/OpCore-Simplify/archive/refs/heads/main.zip"
 SHA_URL = "https://api.github.com/repos/lzhoang2801/OpCore-Simplify/commits/main"
 CREATE_NEW_CONSOLE = 0x00000010
@@ -100,8 +102,11 @@ class Generator:
                     # Espera os arquivos pararem de mudar (a build termina de gravar).
                     sig = done
                     if sig == last:
-                        self._set(phase="done", efi=str(self.results()),
-                                  message="EFI gerada! Ela já foi selecionada e validada abaixo.")
+                        msg = "EFI gerada! Ela já foi selecionada e validada abaixo."
+                        fixed = self._apply_fixes()
+                        if fixed:
+                            msg += " Ajuste automático: " + "; ".join(fixed) + "."
+                        self._set(phase="done", efi=str(self.results()), message=msg)
                         return
                     last = sig
                     continue
@@ -110,6 +115,14 @@ class Generator:
                     return
         except Exception as e:
             self._set(phase="error", message="Falha: " + str(e))
+
+    def _apply_fixes(self):
+        # O relatório do OpCore Simplify traz o Device ID e o caminho PCI de cada GPU.
+        try:
+            gpus = fixes.gpus_from_opcore_report(self.dir / "SysReport" / "Report.json")
+            return fixes.apply_file(self.results() / "OC" / "config.plist", gpus)
+        except Exception:
+            return []  # sem relatório: o HackCheck ainda corrige ao gravar o pendrive
 
     def _efi_ready(self):
         r = self.results()

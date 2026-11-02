@@ -25,7 +25,7 @@ _ctx = ssl.create_default_context()
 _ctx.load_verify_locations(certifi.where())
 urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx)))
 
-VERSION = "0.3.3"
+VERSION = "0.3.4"
 GEN = Generator(creator.data_dir() / "tools")
 
 

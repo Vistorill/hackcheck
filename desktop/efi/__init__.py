@@ -8,6 +8,8 @@ import plistlib
 import re
 from pathlib import Path
 
+from . import fixes
+
 # Índices de versão iguais a V em assets/rules.js.
 VENTURA, SONOMA, SEQUOIA, TAHOE = 5, 6, 7, 8
 
@@ -32,6 +34,8 @@ ETH_KEXTS = [
     (re.compile(r"I21[0-9]|I219|82579|Intel.*Ethernet", re.I), ["IntelMausi", "SmallTreeIntel82576"]),
     # RTL812xLucy é o sucessor do LucyRTL8125Ethernet (mesmo autor, Mieze; 2026).
     (re.compile(r"8125|8126|2\.5G", re.I), ["RTL812xLucy", "LucyRTL8125Ethernet"]),
+    # Realtek 10/100 (RTL8101/8102/8103/8105...): aparece como "Realtek PCIe FE Family Controller".
+    (re.compile(r"810[1-7]|Realtek.*\bFE\b", re.I), ["RealtekRTL8100"]),
     (re.compile(r"8111|8168|RTL81|Realtek.*Gigabit|Realtek PCIe GbE", re.I), ["RealtekRTL8111"]),
     (re.compile(r"Atheros|Killer E2", re.I), ["AtherosE2200Ethernet"]),
     (re.compile(r"Aquantia|AQC", re.I), []),  # suporte nativo
@@ -246,6 +250,10 @@ def validate(path, net=None, version=None, hw=None):
         warnings.append("SMBIOS sem número de série gerado: gere um (GenSMBIOS/OpCore Simplify) antes de usar o iCloud.")
     if version == TAHOE and cfg.get("Misc", {}).get("Security", {}).get("SecureBootModel") not in ("Disabled", None):
         warnings.append("No Tahoe, o SecureBootModel deve ser Disabled para as atualizações funcionarem (Dortania).")
+
+    for _, _, desc in fixes.missing(cfg, hw.get("gpudev")):
+        warnings.append("Falta o spoof de device-id da GPU ({}): sem ele a tela fica preta. "
+                        "O HackCheck adiciona automaticamente ao gravar o pendrive.".format(desc))
 
     # Drivers necessários para o hardware detectado.
     res["drivers"] = drivers_for(hw, int(version) if version is not None else SEQUOIA, kexts, cfg)
